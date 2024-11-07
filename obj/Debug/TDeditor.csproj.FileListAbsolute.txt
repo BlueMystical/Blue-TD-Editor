@@ -1,0 +1,15 @@
+G:\@Proyectos\VS2019\TDeditor\bin\Debug\TDeditor.exe.config
+G:\@Proyectos\VS2019\TDeditor\bin\Debug\TDeditor.exe
+G:\@Proyectos\VS2019\TDeditor\bin\Debug\TDeditor.pdb
+G:\@Proyectos\VS2019\TDeditor\obj\Debug\TDeditor.csproj.AssemblyReference.cache
+G:\@Proyectos\VS2019\TDeditor\obj\Debug\TDeditor.Form1.resources
+G:\@Proyectos\VS2019\TDeditor\obj\Debug\TDeditor.Properties.Resources.resources
+G:\@Proyectos\VS2019\TDeditor\obj\Debug\TDeditor.csproj.GenerateResource.cache
+G:\@Proyectos\VS2019\TDeditor\obj\Debug\TDeditor.csproj.CoreCompileInputs.cache
+G:\@Proyectos\VS2019\TDeditor\obj\Debug\TDeditor.exe
+G:\@Proyectos\VS2019\TDeditor\obj\Debug\TDeditor.pdb
+G:\@Proyectos\VS2019\TDeditor\bin\Debug\Newtonsoft.Json.dll
+G:\@Proyectos\VS2019\TDeditor\bin\Debug\Newtonsoft.Json.pdb
+G:\@Proyectos\VS2019\TDeditor\bin\Debug\Newtonsoft.Json.xml
+G:\@Proyectos\VS2019\TDeditor\obj\Debug\TDeditor.csproj.CopyComplete
+G:\@Proyectos\VS2019\TDeditor\obj\Debug\BlueControls.ColorControl.resources
