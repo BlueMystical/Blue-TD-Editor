@@ -12,11 +12,19 @@ namespace TDeditor
 		/// Punto de entrada principal para la aplicación.
 		/// </summary>
 		[STAThread]
-		static void Main()
+		static void Main(string[] args)
 		{
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
-			Application.Run(new Form1());
+
+			string FileToOpen = string.Empty;
+			if (args.Length > 0)
+			{
+				// Assume the first argument is the file path
+				FileToOpen = args[0];
+			}
+
+			Application.Run(new Form1(FileToOpen));
 		}
 	}
 }

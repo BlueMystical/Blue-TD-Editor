@@ -31,6 +31,14 @@ namespace TDeditor
 		{
 			InitializeComponent();
 		}
+		public Form1(string FileToOpen)
+		{
+			InitializeComponent();
+			if (!string.IsNullOrEmpty(FileToOpen))
+			{
+				_FilePath = FileToOpen;				
+			}
+		}
 
 		private void Form1_Load(object sender, EventArgs e)
 		{
@@ -55,7 +63,15 @@ namespace TDeditor
 		}
 		private void Form1_Shown(object sender, EventArgs e)
 		{
+			if (!string.IsNullOrEmpty(_FilePath))
+			{
+				_LastFolder = System.IO.Path.GetDirectoryName(_FilePath);
+				Util.WinReg_WriteKey("Settings", "LastFolder", _LastFolder);
 
+				System.IO.FileInfo file = new System.IO.FileInfo(_FilePath);
+				this.lblStatus.Text = string.Format("{0} | {1}", _FilePath, Util.GetFileSize(file.Length));
+				OpenTDfile(Util.ReadTextFile(_FilePath, Util.TextEncoding.UTF8));
+			}
 		}
 
 		#region Open & de-serialize TD files
@@ -228,6 +244,48 @@ namespace TDeditor
 			}
 		}
 
+		// Retrieves the modified data from the TreeView and builds an string having the hierycal structure
+		private void TraverseNodes(TreeNode treeNode, StringBuilder sb, int indentLevel)
+		{
+			string indent = new string(' ', indentLevel * 3); // 3 spaces per indentation level
+
+			if (treeNode.Nodes.Count > 0)
+			{
+				// A node with Childs:
+				sb.AppendLine($"{indent}{treeNode.Text} = {{");
+				foreach (TreeNode childNode in treeNode.Nodes)
+				{
+					// Recursive call to process the Child nodes:
+					TraverseNodes(childNode, sb, indentLevel + 1);
+				}
+				sb.AppendLine($"{indent}}}");
+			}
+			else
+			{
+				// Single element Node, no childs
+				if (treeNode.Tag is Array array)
+				{
+					// Node Data is an Array:
+					sb.AppendLine($"{indent}{treeNode.Text} = [");
+					for (int i = 0; i < array.Length; i++)
+					{
+						sb.AppendLine($"{indent} {array.GetValue(i)}{(i < array.Length - 1 ? "," : "")}");
+					}
+					sb.AppendLine($"{indent}]");
+				}
+				else
+				{
+					// Node Data is a Single Value:
+					string value = treeNode.Tag.ToString();
+					if (treeNode.Tag is string && IsString(value))
+					{
+						value = $"\"{value}\"";
+					}
+					sb.AppendLine($"{indent}{treeNode.Text} = {value}");
+				}
+			}
+		}
+
 		private string ConvertToJson(string rawData)
 		{
 			// Add missing braces
@@ -302,42 +360,6 @@ namespace TDeditor
 				}
 			}
 			return sb.ToString();
-		}
-
-		private void TraverseNodes(TreeNode treeNode, StringBuilder sb, int indentLevel)
-		{
-			string indent = new string(' ', indentLevel * 3); // 3 spaces per indentation level
-
-			if (treeNode.Nodes.Count > 0)
-			{
-				sb.AppendLine($"{indent}{treeNode.Text} = {{");
-				foreach (TreeNode childNode in treeNode.Nodes)
-				{
-					TraverseNodes(childNode, sb, indentLevel + 1);
-				}
-				sb.AppendLine($"{indent}}}");
-			}
-			else
-			{
-				if (treeNode.Tag is Array)
-				{
-					sb.AppendLine($"{indent}{treeNode.Text} = [");
-					foreach (var item in (Array)treeNode.Tag)
-					{
-						sb.AppendLine($"{indent}   {item},");
-					}
-					sb.AppendLine($"{indent}]");
-				}
-				else
-				{
-					string value = treeNode.Tag.ToString();
-					if (treeNode.Tag is string && IsString(value))
-					{
-						value = $"\"{value}\"";
-					}
-					sb.AppendLine($"{indent}{treeNode.Text} = {value}");
-				}
-			}
 		}
 
 		private bool IsString(string value)
@@ -721,7 +743,7 @@ namespace TDeditor
 							List<int> integerArray = new List<int>();
 							foreach (DataGridViewRow row in Valuecontrol_Array.Rows)
 							{
-								integerArray.Add((int)row.Cells[0].Value);
+								integerArray.Add(Convert.ToInt32(row.Cells[0].Value));
 							}
 							lastSelectedNode.Tag = integerArray.ToArray();
 							break;
@@ -729,7 +751,7 @@ namespace TDeditor
 							List<decimal> decimalArray = new List<decimal>();
 							foreach (DataGridViewRow row in Valuecontrol_Array.Rows)
 							{
-								decimalArray.Add((int)row.Cells[0].Value);
+								decimalArray.Add(Convert.ToDecimal(row.Cells[0].Value));
 							}
 							lastSelectedNode.Tag = decimalArray.ToArray();
 							break;
