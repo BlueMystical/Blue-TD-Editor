@@ -43,12 +43,7 @@ namespace BlueControls
 
 		private void ColorControl_Load(object sender, EventArgs e)
 		{
-			ColorBox.BackColor = this.ColorValue;
-			R_Value.Value = ColorValue.R;
-			G_Value.Value = ColorValue.G;
-			B_Value.Value = ColorValue.B;
-			A_Value.Value = ColorValue.A;
-
+			SetColorFrom(this.ColorValue);
 			IsLoading = false;
 		}
 
@@ -59,6 +54,7 @@ namespace BlueControls
 				AnyColor = true,
 				FullOpen = true,
 				AllowFullOpen = true,
+				SolidColorOnly = false,
 				Color = this.ColorValue
 			};
 			if (Dialog.ShowDialog() == DialogResult.OK)
@@ -66,10 +62,11 @@ namespace BlueControls
 				IsLoading = true;
 
 				this.ColorValue = Dialog.Color;
+
+				A_Value.Value = ColorValue.A;
 				R_Value.Value = ColorValue.R;
 				G_Value.Value = ColorValue.G;
-				B_Value.Value = ColorValue.B;
-				A_Value.Value = ColorValue.A;
+				B_Value.Value = ColorValue.B;				
 
 				ColorBox.BackColor = this.ColorValue;
 
@@ -133,7 +130,10 @@ namespace BlueControls
 		{
 			try
 			{
-				SetColorFrom(ColorTranslator.FromHtml(txtHtmlValue.Text));
+				if (!IsLoading)
+				{
+					SetColorFrom(ColorTranslator.FromHtml(txtHtmlValue.Text));
+				}
 			}
 			catch { }
 		}
@@ -145,10 +145,12 @@ namespace BlueControls
 				IsLoading = true;
 				ColorValue = Value;
 				ColorBox.BackColor = this.ColorValue;
+
+				A_Value.Value = ColorValue.A;
 				R_Value.Value = ColorValue.R;
 				G_Value.Value = ColorValue.G;
 				B_Value.Value = ColorValue.B;
-				A_Value.Value = ColorValue.A;
+				
 				txtHtmlValue.Text = ColorTranslator.ToHtml(ColorValue);
 				IsLoading = false;
 			}
@@ -164,10 +166,12 @@ namespace BlueControls
 				IsLoading = true;
 				ColorValue = Color.FromArgb(Value);
 				ColorBox.BackColor = this.ColorValue;
+
+				A_Value.Value = ColorValue.A;
 				R_Value.Value = ColorValue.R;
 				G_Value.Value = ColorValue.G;
-				B_Value.Value = ColorValue.B;
-				A_Value.Value = ColorValue.A;
+				B_Value.Value = ColorValue.B;				
+
 				txtHtmlValue.Text = ColorTranslator.ToHtml(ColorValue);
 				IsLoading = false;
 			}
@@ -199,10 +203,12 @@ namespace BlueControls
 						this.Time = RGBA_Values[0];
 					}
 					ColorBox.BackColor = this.ColorValue;
+
+					A_Value.Value = ColorValue.A;
 					R_Value.Value = ColorValue.R;
 					G_Value.Value = ColorValue.G;
 					B_Value.Value = ColorValue.B;
-					A_Value.Value = ColorValue.A;
+					
 					txtHtmlValue.Text = ColorTranslator.ToHtml(ColorValue);
 					IsLoading = false;
 				}
@@ -233,12 +239,18 @@ namespace BlueControls
 						ColorValue = Color.FromArgb((int)RGBA_Values[1], (int)RGBA_Values[2], (int)RGBA_Values[3], (int)RGBA_Values[4]);
 						lbTime.Text = string.Format("T:{0:n4}", RGBA_Values[0]);
 						this.Time = RGBA_Values[0];
+
+						this.Alpha = ColorValue.A;
+						this.Red = ColorValue.R;
+						this.Green = ColorValue.G;
+						this.Blue = ColorValue.B;
 					}
 					ColorBox.BackColor = this.ColorValue;
+
+					A_Value.Value = ColorValue.A;
 					R_Value.Value = ColorValue.R;
 					G_Value.Value = ColorValue.G;
 					B_Value.Value = ColorValue.B;
-					A_Value.Value = ColorValue.A;
 					
 					txtHtmlValue.Text = ColorTranslator.ToHtml(ColorValue);
 					IsLoading = false;
@@ -256,10 +268,12 @@ namespace BlueControls
 				IsLoading = true;
 				ColorValue = ColorTranslator.FromHtml(Value);
 				ColorBox.BackColor = this.ColorValue;
+
+				A_Value.Value = ColorValue.A;
 				R_Value.Value = ColorValue.R;
 				G_Value.Value = ColorValue.G;
 				B_Value.Value = ColorValue.B;
-				A_Value.Value = ColorValue.A;
+
 				txtHtmlValue.Text = ColorTranslator.ToHtml(ColorValue);
 				IsLoading = false;
 			}

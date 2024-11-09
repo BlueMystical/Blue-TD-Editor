@@ -350,6 +350,53 @@ namespace TDeditor
 			return false;
 		}
 
+		/// <summary>Determina si el valor de la Variable se encuentra dentro del Rango especificado.</summary>
+		/// <typeparam name="T">Tipo de Datos del  Objeto</typeparam>
+		/// <param name="Valor">Valor (numerico) a comparar.</param>
+		/// <param name="Desde">Rango Inicial</param>
+		/// <param name="Hasta">Rango final</param>
+		public static bool Between<T>(this T Valor, T Desde, T Hasta) where T : IComparable<T>
+		{
+			return Valor.CompareTo(Desde) >= 0 && Valor.CompareTo(Hasta) < 0;
+		}
+
+
+		/// <summary>Evalua si un determinado valor se encuentra entre una lista de valores.</summary>
+		/// <param name="pVariable">Valor a Buscar.</param>
+		/// <param name="pValores">Lista de Valores de Referencia. Ignora Mayusculas.</param>
+		/// <returns>Devuelve 'True' si el valor existe en la lista al menos una vez.</returns>
+		public static bool In(this String text, params string[] pValores)
+		{
+			bool retorno = false;
+			try
+			{
+				foreach (string val in pValores)
+				{
+					if (text.Equals(val, StringComparison.InvariantCultureIgnoreCase))
+					{ retorno = true; break; }
+				}
+			}
+			catch { }
+			return retorno;
+		}
+		/// <summary>Evalua si un determinado valor se encuentra entre una lista de valores.</summary>
+		/// <param name="pVariable">Valor a Buscar.</param>
+		/// <param name="pValores">Lista de Valores de Referencia.</param>
+		/// <returns>Devuelve 'True' si el valor existe en la lista al menos una vez.</returns>
+		public static bool In(this Int32 valor, params int[] pValores)
+		{
+			bool retorno = false;
+			try
+			{
+				foreach (int val in pValores)
+				{
+					if (val == valor) { retorno = true; break; }
+				}
+			}
+			catch { }
+			return retorno;
+		}
+
 		/// <summary>Serializa y escribe el objeto indicado en una cadena JSON.
 		/// <para>Object type must have a parameterless constructor.</para>
 		/// <para>Only Public properties and variables will be written to the file. These can be any type though, even other classes.</para>

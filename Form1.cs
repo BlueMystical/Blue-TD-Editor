@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -190,7 +191,7 @@ namespace TDeditor
 						// Check if the JArray contains numeric or string values
 						if (property.Value.Count > 0)
 						{
-							if (property.Name == "color")
+							if (Util.In(property.Name.ToString(), "color", "width", "spline"))
 							{
 								decimal[] decimalArray = property.Value.ToObject<decimal[]>();
 								newNode.Tag = decimalArray;
@@ -263,25 +264,72 @@ namespace TDeditor
 			else
 			{
 				// Single element Node, no childs
+				//if (treeNode.Tag is Array array)
+				//{
+				//	// Node Data is an Array:
+				//	sb.AppendLine($"{indent}{treeNode.Text} = [");
+				//	for (int i = 0; i < array.Length; i++)
+				//	{
+				//		var item = array.GetValue(i);
+				//		if (item is string)
+				//		{
+				//			sb.AppendLine($"{indent}   \"{item}\"{(i < array.Length - 1 ? "," : "")}");
+				//		}
+				//		else
+				//		{
+				//			sb.AppendLine($"{indent}   {item}{(i < array.Length - 1 ? "," : "")}");
+				//		}
+				//	}
+				//	sb.AppendLine($"{indent}]");
+				//}
 				if (treeNode.Tag is Array array)
 				{
-					// Node Data is an Array:
 					sb.AppendLine($"{indent}{treeNode.Text} = [");
 					for (int i = 0; i < array.Length; i++)
 					{
-						sb.AppendLine($"{indent} {array.GetValue(i)}{(i < array.Length - 1 ? "," : "")}");
+						var item = array.GetValue(i);
+						if (item is string)
+						{
+							sb.AppendLine($"{indent}   \"{item}\"{(i < array.Length - 1 ? "," : "")}");
+						}
+						else if (item is JObject obj)
+						{
+							sb.AppendLine($"{indent}   {{");
+							foreach (var property in obj.Properties())
+							{
+								string value = property.Value.ToString();
+								if (property.Value.Type == JTokenType.String && IsString(value))
+								{
+									value = $"\"{value}\"";
+								}
+								sb.AppendLine($"{indent}      {property.Name} = {value}{(property == obj.Properties().Last() ? "" : ",")}");
+							}
+							sb.AppendLine($"{indent}   }}{(i < array.Length - 1 ? "," : "")}");
+						}
+						else
+						{
+							sb.AppendLine($"{indent}   {item}{(i < array.Length - 1 ? "," : "")}");
+						}
 					}
 					sb.AppendLine($"{indent}]");
 				}
 				else
 				{
 					// Node Data is a Single Value:
-					string value = treeNode.Tag.ToString();
-					if (treeNode.Tag is string && IsString(value))
+					if (treeNode.Tag != null)
 					{
-						value = $"\"{value}\"";
+						string value = treeNode.Tag.ToString();
+						if (treeNode.Tag is string && IsString(value))
+						{
+							value = $"\"{value}\"";
+						}
+						sb.AppendLine($"{indent}{treeNode.Text} = {value}");
 					}
-					sb.AppendLine($"{indent}{treeNode.Text} = {value}");
+					else
+					{
+						Console.WriteLine($"ERROR: No Tag Data was found!|{ treeNode.FullPath }");
+						sb.AppendLine($"{indent}{treeNode.Text} = {{ }}");
+					}
 				}
 			}
 		}
@@ -715,7 +763,7 @@ namespace TDeditor
 							lastSelectedNode.Tag = intArray;
 							break;
 						case "Color Sprite:Decimal":
-							//decimal[] decArray = (decimal[])lastSelectedNode.Tag;
+							decimal[] decArray1 = (decimal[])lastSelectedNode.Tag;
 							List<decimal> output = new List<decimal>();
 							foreach (ColorControl ctrl in tblModules.Controls)
 							{
