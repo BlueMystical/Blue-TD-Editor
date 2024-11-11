@@ -191,28 +191,39 @@ namespace TDeditor
 						// Check if the JArray contains numeric or string values
 						if (property.Value.Count > 0)
 						{
+							// Some Arrays are not shown as childs in the tree:
 							if (Util.In(property.Name.ToString(), "color", "width", "spline"))
 							{
-								decimal[] decimalArray = property.Value.ToObject<decimal[]>();
-								newNode.Tag = decimalArray;
+								newNode.Tag = property.Value.ToObject<decimal[]>();
+							}
+							else if (property.Name.ToString() == "directions")
+							{
+								newNode.Tag = property.Value.ToObject<dynamic[]>();
 							}
 							else
 							{
 								var firstElement = property.Value[0];
 								if (firstElement.Type == JTokenType.Integer)
 								{
-									int[] intArray = property.Value.ToObject<int[]>();
-									newNode.Tag = intArray;
+									newNode.Tag = property.Value.ToObject<int[]>();
 								}
 								else if (firstElement.Type == JTokenType.Float)
 								{
-									decimal[] decimalArray = property.Value.ToObject<decimal[]>();
-									newNode.Tag = decimalArray;
+									newNode.Tag = property.Value.ToObject<decimal[]>();
 								}
 								else if (firstElement.Type == JTokenType.String)
 								{
-									string[] stringArray = property.Value.ToObject<string[]>();
-									newNode.Tag = stringArray;
+									newNode.Tag = property.Value.ToObject<string[]>();
+								}
+								else if (firstElement.Type == JTokenType.Object)
+								{
+									/* directions   =   [
+									   {
+										  x   =   1
+										  y   =   0
+									   }
+									] */
+									newNode.Tag = property.Value.ToObject<dynamic[]>();
 								}
 								else
 								{
@@ -245,15 +256,16 @@ namespace TDeditor
 			}
 		}
 
+
+
 		// Retrieves the modified data from the TreeView and builds an string having the hierycal structure
 		private void TraverseNodes(TreeNode treeNode, StringBuilder sb, int indentLevel)
 		{
 			string indent = new string(' ', indentLevel * 3); // 3 spaces per indentation level
 
-			if (treeNode.Nodes.Count > 0)
+			if (treeNode.Nodes.Count > 0) //<- A node with Childs:
 			{
-				// A node with Childs:
-				sb.AppendLine($"{indent}{treeNode.Text} = {{");
+				sb.AppendLine($"{indent}{FixSpacedStrings(treeNode.Text)} = {{");
 				foreach (TreeNode childNode in treeNode.Nodes)
 				{
 					// Recursive call to process the Child nodes:
@@ -261,27 +273,9 @@ namespace TDeditor
 				}
 				sb.AppendLine($"{indent}}}");
 			}
-			else
+			else //<- Single element Node, no childs
 			{
-				// Single element Node, no childs
-				//if (treeNode.Tag is Array array)
-				//{
-				//	// Node Data is an Array:
-				//	sb.AppendLine($"{indent}{treeNode.Text} = [");
-				//	for (int i = 0; i < array.Length; i++)
-				//	{
-				//		var item = array.GetValue(i);
-				//		if (item is string)
-				//		{
-				//			sb.AppendLine($"{indent}   \"{item}\"{(i < array.Length - 1 ? "," : "")}");
-				//		}
-				//		else
-				//		{
-				//			sb.AppendLine($"{indent}   {item}{(i < array.Length - 1 ? "," : "")}");
-				//		}
-				//	}
-				//	sb.AppendLine($"{indent}]");
-				//}
+				// Node contains an Array:
 				if (treeNode.Tag is Array array)
 				{
 					sb.AppendLine($"{indent}{treeNode.Text} = [");
@@ -302,7 +296,7 @@ namespace TDeditor
 								{
 									value = $"\"{value}\"";
 								}
-								sb.AppendLine($"{indent}      {property.Name} = {value}{(property == obj.Properties().Last() ? "" : ",")}");
+								sb.AppendLine($"{indent}      {FixSpacedStrings(property.Name)} = {value}{(property == obj.Properties().Last() ? "" : ",")}");
 							}
 							sb.AppendLine($"{indent}   }}{(i < array.Length - 1 ? "," : "")}");
 						}
@@ -323,7 +317,7 @@ namespace TDeditor
 						{
 							value = $"\"{value}\"";
 						}
-						sb.AppendLine($"{indent}{treeNode.Text} = {value}");
+						sb.AppendLine($"{indent}{FixSpacedStrings(treeNode.Text)} = {value}");
 					}
 					else
 					{
@@ -334,19 +328,42 @@ namespace TDeditor
 			}
 		}
 
+		public string FixSpacedStrings(string pValue)
+		{
+			string _ret = pValue;
+			try
+			{
+				// Check if the string contains white space between words
+				bool hasWhitespace = pValue.Any(char.IsWhiteSpace);
+				if (hasWhitespace)
+				{
+					_ret = $"\"{pValue}\"";
+				}
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show(ex.Message + ex.StackTrace, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
+			return _ret;
+		}
+
+
+
 		private string ConvertToJson(string rawData)
 		{
 			// Add missing braces
 			rawData = "{" + rawData + "}";
 
 			// Remove comments
-			rawData = Regex.Replace(rawData, @"//.*?$|/\*.*?\*/", "", RegexOptions.Singleline | RegexOptions.Multiline);
+			rawData = Regex.Replace(rawData, @"//.*?$|/\*.*?\*/
+											", "", RegexOptions.Singleline | RegexOptions.Multiline);
 
 			// Replace equals with colons
 			rawData = rawData.Replace("=", ":");
 
 			// Add quotes around property names
-			rawData = Regex.Replace(rawData, @"(\w+):", "\"$1\":");
+			//rawData = Regex.Replace(rawData, @"(\w+):", "\"$1\":");
+			rawData = Regex.Replace(rawData, @"(\w+(?:\s+\w+)*):", "\"$1\":");
 
 			// Fix boolean and null values explicitly before adding quotes around other values
 			rawData = rawData.Replace(": true", ": !#True#!")
@@ -356,9 +373,9 @@ namespace TDeditor
 			// Add quotes around string values
 			rawData = Regex.Replace(rawData, @":\s*([^""{} 
 
-\[\]
+		\[\]
 
- ,\d\.\-]+)", ": \"$1\"");
+		 ,\d\.\-]+)", ": \"$1\"");
 
 			// Restore boolean and null values after adding quotes around other values
 			rawData = rawData.Replace("!#True#!", "true")
@@ -368,20 +385,21 @@ namespace TDeditor
 			// Add missing commas at the end of lines if not already present
 			rawData = Regex.Replace(rawData, @"([^,\{\} 
 
-\[\]
+			\[\]
 
- \s])\s*[\r\n]+", "$1,\r\n");
+			 \s])\s*[\r\n]+", "$1,\r\n");
 
 			// Add missing commas after closing brackets and braces if not already there and not at end of file
 			rawData = Regex.Replace(rawData, @"(\})\s*([^\]
 
- ,\s\}\{])", "$1,$2");
+			 ,\s\}\{])", "$1,$2");
 
 			// Add commas after closing brackets if not already there
 			rawData = AddCommasAfterBrackets(rawData);
 
 			return rawData;
 		}
+
 		private string AddCommasAfterBrackets(string input)
 		{
 			string[] lines = input.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
@@ -412,8 +430,8 @@ namespace TDeditor
 
 		private bool IsString(string value)
 		{
-			// Check if the value contains alphabetic characters and is not a boolean
-			return Regex.IsMatch(value, @"[a-zA-Z]") && !Regex.IsMatch(value, @"^(true|false)$", RegexOptions.IgnoreCase);
+			// Check if the value is empty or contains alphabetic characters and is not a boolean
+			return string.IsNullOrEmpty(value) || (Regex.IsMatch(value, @"[a-zA-Z]") && !Regex.IsMatch(value, @"^(true|false)$", RegexOptions.IgnoreCase));
 		}
 
 		#endregion
