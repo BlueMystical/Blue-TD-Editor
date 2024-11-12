@@ -158,8 +158,11 @@ namespace TDeditor
 				lastSearchText = string.Empty;
 				_TheFileRaw = pRawFileContent;			
 
-				string PreProcesedData = ConvertToJson(_TheFileRaw);
-				this.JsonData = JsonConvert.DeserializeObject<dynamic>(PreProcesedData);
+				string preProcessedData = ConvertToJson(_TheFileRaw);
+				this.JsonData = JsonConvert.DeserializeObject<dynamic>(preProcessedData);
+				//var settings = new JsonSerializerSettings();
+				//settings.Converters.Add(new DecimalJsonConverter());
+				//dynamic jsonData = JsonConvert.DeserializeObject<dynamic>(preProcessedData, settings);
 
 				treeView1.BeginUpdate();
 				treeView1.Nodes.Clear();
@@ -252,7 +255,7 @@ namespace TDeditor
 			}
 			else
 			{
-				treeNode.Tag = obj.ToString();
+				treeNode.Tag = obj;
 			}
 		}
 
@@ -278,12 +281,13 @@ namespace TDeditor
 				// Node contains an Array:
 				if (treeNode.Tag is Array array)
 				{
-					sb.AppendLine($"{indent}{treeNode.Text} = [");
+					sb.AppendLine($"{indent}{FixSpacedStrings(treeNode.Text)} = [");
 					for (int i = 0; i < array.Length; i++)
 					{
 						var item = array.GetValue(i);
-						if (item is string)
+						if (item is string && IsString(item.ToString()))
 						{
+							// Wrap string values in quotes:
 							sb.AppendLine($"{indent}   \"{item}\"{(i < array.Length - 1 ? "," : "")}");
 						}
 						else if (item is JObject obj)
@@ -294,7 +298,7 @@ namespace TDeditor
 								string value = property.Value.ToString();
 								if (property.Value.Type == JTokenType.String && IsString(value))
 								{
-									value = $"\"{value}\"";
+									value = $"\"{value}\""; //<- Wrap string values in quotes
 								}
 								sb.AppendLine($"{indent}      {FixSpacedStrings(property.Name)} = {value}{(property == obj.Properties().Last() ? "" : ",")}");
 							}
@@ -313,9 +317,18 @@ namespace TDeditor
 					if (treeNode.Tag != null)
 					{
 						string value = treeNode.Tag.ToString();
-						if (treeNode.Tag is string && IsString(value))
+						if (IsString(value))
 						{
-							value = $"\"{value}\"";
+							value = $"\"{value}\""; //<- Wrap string values in quotes
+						}
+						else if (treeNode.Tag != null && treeNode.Tag is JValue jValue)
+						{
+							// Format Decimal values with 6 decimal places:
+							Type realType = jValue.Value.GetType();
+							if (jValue.Type == JTokenType.Float)
+							{
+								value = $"{jValue.ToObject<decimal>():F6}";
+							}
 						}
 						sb.AppendLine($"{indent}{FixSpacedStrings(treeNode.Text)} = {value}");
 					}
@@ -328,6 +341,8 @@ namespace TDeditor
 			}
 		}
 
+		/// <summary>If the name is an string and contain spaces this will wrap it in quotes.</summary>
+		/// <param name="pValue">Name</param>
 		public string FixSpacedStrings(string pValue)
 		{
 			string _ret = pValue;
@@ -432,6 +447,10 @@ namespace TDeditor
 		{
 			// Check if the value is empty or contains alphabetic characters and is not a boolean
 			return string.IsNullOrEmpty(value) || (Regex.IsMatch(value, @"[a-zA-Z]") && !Regex.IsMatch(value, @"^(true|false)$", RegexOptions.IgnoreCase));
+		}
+		private static Type GetRealType(JValue value)
+		{
+			return value.Value.GetType();
 		}
 
 		#endregion
@@ -555,22 +574,29 @@ namespace TDeditor
 					}
 					else if (Util.IsNumeric(lastSelectedNode.Tag))
 					{
-						if (Util.IsInteger(lastSelectedNode.Tag))
+						object objData = e.Node.Tag;
+						// Check if objData is a JValue and determine its real type
+						if (objData is JValue jValue)
 						{
-							CurrentType = "Single Value:Integer";
-							Valuecontrol_Numeric.Minimum = Int32.MinValue;
-							Valuecontrol_Numeric.Maximum = int.MaxValue;
-							Valuecontrol_Numeric.DecimalPlaces = 0;
-							Valuecontrol_Numeric.Value = Convert.ToInt32(lastSelectedNode.Tag);
-						}
-						else
-						{
-							CurrentType = "Single Value:Decimal";
-							Valuecontrol_Numeric.Minimum = Decimal.MinValue;
-							Valuecontrol_Numeric.Maximum = Decimal.MaxValue;
-							Valuecontrol_Numeric.Value = Convert.ToDecimal(lastSelectedNode.Tag);
-							Valuecontrol_Numeric.DecimalPlaces = 4;
-						}						
+							// Work with the real type
+							if (jValue.Type == JTokenType.Float)
+							{
+								decimal decimalValue = jValue.ToObject<decimal>();
+								CurrentType = "Single Value:Decimal";
+								Valuecontrol_Numeric.Minimum = Decimal.MinValue;
+								Valuecontrol_Numeric.Maximum = Decimal.MaxValue;
+								Valuecontrol_Numeric.Value = Convert.ToDecimal(lastSelectedNode.Tag);
+								Valuecontrol_Numeric.DecimalPlaces = 4;
+							}
+							else if (jValue.Type == JTokenType.Integer)
+							{
+								CurrentType = "Single Value:Integer";
+								Valuecontrol_Numeric.Minimum = Int32.MinValue;
+								Valuecontrol_Numeric.Maximum = int.MaxValue;
+								Valuecontrol_Numeric.DecimalPlaces = 0;
+								Valuecontrol_Numeric.Value = Convert.ToInt32(lastSelectedNode.Tag);
+							}
+						}					
 						Valuecontrol_Numeric.Visible = true;
 					}
 					else {
