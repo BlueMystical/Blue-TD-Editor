@@ -134,13 +134,9 @@ namespace TDeditor
 			// 
 			// Valuecontrol_Color
 			// 
-			this.Valuecontrol_Color.Alpha = 0;
-			this.Valuecontrol_Color.Blue = 0;
 			this.Valuecontrol_Color.ColorValue = System.Drawing.Color.White;
-			this.Valuecontrol_Color.Green = 0;
 			this.Valuecontrol_Color.Location = new System.Drawing.Point(33, 22);
 			this.Valuecontrol_Color.Name = "Valuecontrol_Color";
-			this.Valuecontrol_Color.Red = 0;
 			this.Valuecontrol_Color.Size = new System.Drawing.Size(304, 58);
 			this.Valuecontrol_Color.TabIndex = 2;
 			this.Valuecontrol_Color.Time = new decimal(new int[] {

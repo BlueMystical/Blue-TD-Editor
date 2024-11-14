@@ -5,18 +5,24 @@ using System.Windows.Forms;
 
 namespace BlueControls
 {
+	/// <summary>Custom Control to Show and Edit Color Values.</summary>
 	public partial class ColorControl : UserControl
 	{
+		/// <summary>The Selected color.</summary>
 		public Color ColorValue { get; set; } = Color.White;
 
-		public int Red { get; set; }
-		public int Green { get; set; }
-		public int Blue { get; set; }
-		public int Alpha { get; set; }
+		public int Red { get { return ColorValue.R; } }
+		public int Green { get { return ColorValue.G; } }
+		public int Blue { get { return ColorValue.B; } }
+		public int Alpha { get { return ColorValue.A; } }
+
 		public decimal Time { get; set; } = 0;
 
 		private bool IsLoading = true;
-		
+		private Timer textChangedTimer;
+		private TextBox activeTextBox;
+		private ToolTip toolTip;
+
 		/// <summary>Custom Colors for the colorPick Dialog</summary>
 		public int[] CustomColors { get; set; } = Enumerable.Repeat(unchecked(16777215), 16).ToArray();
 
@@ -48,8 +54,22 @@ namespace BlueControls
 
 		private void ColorControl_Load(object sender, EventArgs e)
 		{
+			textChangedTimer = new Timer
+			{
+				Interval = 500 // Set the delay interval in milliseconds
+			};
+			textChangedTimer.Tick += RGB_Value_TimerTick;
+
+			toolTip = new ToolTip
+			{
+				// Optional: Customize tooltip appearance
+				ToolTipTitle = "Information",
+				ToolTipIcon = ToolTipIcon.Info,
+				IsBalloon = true
+			};
+			toolTip.SetToolTip(txtHtmlValue, "Import any Color here, acepted formats:\r\nNumeric Value, HEX html, A;R;G;B, Named Color.");
+
 			SetColorFrom(this.ColorValue);
-			IsLoading = false;
 		}
 
 		private void ColorBox_DoubleClick(object sender, EventArgs e)
@@ -67,29 +87,19 @@ namespace BlueControls
 			if (Dialog.ShowDialog() == DialogResult.OK)
 			{
 				IsLoading = true;
-
-				this.ColorValue = Dialog.Color;
 				this.CustomColors = Dialog.CustomColors;
 
-				A_Value.Value = ColorValue.A;
-				R_Value.Value = ColorValue.R;
-				G_Value.Value = ColorValue.G;
-				B_Value.Value = ColorValue.B;				
-
-				ColorBox.BackColor = this.ColorValue;
-				txtHtmlValue.Text = ColorTranslator.ToHtml(ColorValue);			
-
-				IsLoading = false;
+				SetColorFrom(Dialog.Color);
 			}
 		}
 		private void ColorBox_Paint(object sender, PaintEventArgs e)
 		{
-			/*  DRAW A TRANSPARENCY GRID */
-			int gridSize = 8; //<- Size of the squares
+			/*  DRAWS A TRANSPARENCY GRID */
+			int gridSize = 6; //<- Size of the squares
 			int rows = (ColorBox.Height / gridSize) + 1; //<- To ensure grid covers the whole box
 			int cols = (ColorBox.Width / gridSize) + 1;
 
-			// Draw the grid layer
+			// Draw the grid layer:
 			for (int row = 0; row < rows; row++)
 			{
 				for (int col = 0; col < cols; col++)
@@ -106,19 +116,82 @@ namespace BlueControls
 			}
 		}
 
-		private void RGB_Value_ValueChanged(object sender, EventArgs e)
+		private void RGB_Value_TextChanged(object sender, EventArgs e)
 		{
 			if (!IsLoading)
 			{
-				ColorValue = Color.FromArgb(
-					Convert.ToInt32(A_Value.Value),
-					Convert.ToInt32(R_Value.Value),
-					Convert.ToInt32(G_Value.Value),
-					Convert.ToInt32(B_Value.Value)
-				);
-				ColorBox.BackColor = ColorValue;
-				txtHtmlValue.Text = ColorTranslator.ToHtml(ColorValue);
-				lblAlpha.Text = string.Format("A:{0:n1}%", A_Value.Value * 100 / 255);
+				textChangedTimer.Stop();
+				textChangedTimer.Start();
+
+				activeTextBox = sender as TextBox;
+
+				// Restart the timer on each text change
+				textChangedTimer.Stop();
+				textChangedTimer.Start();
+			}
+		}
+		private void RGB_Value_KeyPress(object sender, KeyPressEventArgs e)
+		{
+			// Allow only digits and control characters (like backspace)
+			if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
+			{
+				e.Handled = true;
+			}
+		}
+		private void RGB_Value_KeyDown(object sender, KeyEventArgs e)
+		{
+			if (e.KeyCode == Keys.Up)
+			{
+				IncrementValue(sender as TextBox);
+				e.Handled = true; // Prevent default behavior
+			}
+			else if (e.KeyCode == Keys.Down)
+			{
+				DecrementValue(sender as TextBox);
+				e.Handled = true; // Prevent default behavior
+			}
+		}
+		private void RGB_Value_TimerTick(object sender, EventArgs e)
+		{
+			// Stop the timer
+			textChangedTimer.Stop();
+
+			// Validate and correct the input value for the active textbox
+			if (activeTextBox != null && int.TryParse(activeTextBox.Text, out int currentValue))
+			{
+				if (currentValue < 0)
+				{
+					activeTextBox.Text = "0";
+				}
+				else if (currentValue > 255)
+				{
+					activeTextBox.Text = "255";
+				}
+				// Move the cursor to the end of the text
+				activeTextBox.SelectAll();
+
+				SetColorFrom(Color.FromArgb(
+					Convert.ToInt32(A_Value.Text),
+					Convert.ToInt32(R_Value.Text),
+					Convert.ToInt32(G_Value.Text),
+					Convert.ToInt32(B_Value.Text)
+				));
+			}
+			else if (activeTextBox != null && activeTextBox.Text != string.Empty)
+			{
+				activeTextBox.Text = "0";
+			}
+		}
+		private void RGB_Value__Enter(object sender, EventArgs e)
+		{
+			// Select all text when the TextBox gains focus
+			var textBox = sender as TextBox;
+			if (textBox != null)
+			{
+				BeginInvoke((Action)delegate
+				{
+					textBox.SelectAll();
+				});
 			}
 		}
 
@@ -134,6 +207,14 @@ namespace BlueControls
 			catch { }
 		}
 
+		//The ColorTranslator.ToHtml method does not include the alpha component
+		private string ColorToHtmlWithAlpha(Color color)
+		{
+			return $"#{color.A:X2}{color.R:X2}{color.G:X2}{color.B:X2}";
+		}
+
+
+		/// <summary>Set and Show the selected color in all the Controls</summary><param name="Value">Color to show</param>
 		public void SetColorFrom(Color Value)
 		{
 			try
@@ -142,12 +223,14 @@ namespace BlueControls
 				ColorValue = Value;
 				ColorBox.BackColor = this.ColorValue;
 
-				A_Value.Value = ColorValue.A;
-				R_Value.Value = ColorValue.R;
-				G_Value.Value = ColorValue.G;
-				B_Value.Value = ColorValue.B;
-				
-				txtHtmlValue.Text = ColorTranslator.ToHtml(ColorValue);
+				A_Value.Text = ColorValue.A.ToString();
+				R_Value.Text = ColorValue.R.ToString();
+				G_Value.Text = ColorValue.G.ToString();
+				B_Value.Text = ColorValue.B.ToString();
+
+				txtHtmlValue.Text = ColorToHtmlWithAlpha(ColorValue);
+				lbTime.Text = string.Format("{0}", ColorValue.ToArgb().ToString());
+				lblAlpha.Text = string.Format("A:{0:n1}%", Convert.ToInt32(A_Value.Text) * 100 / 255);
 				IsLoading = false;
 			}
 			catch (Exception ex)
@@ -155,130 +238,76 @@ namespace BlueControls
 				MessageBox.Show(ex.Message + ex.StackTrace, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 		}
+		/// <summary>Sets the selected color in all the Controls</summary><param name="Value">Color to show</param>
 		public void SetColorFrom(int Value)
 		{
-			try
-			{
-				IsLoading = true;
-				ColorValue = Color.FromArgb(Value);
-				ColorBox.BackColor = this.ColorValue;
-
-				A_Value.Value = ColorValue.A;
-				R_Value.Value = ColorValue.R;
-				G_Value.Value = ColorValue.G;
-				B_Value.Value = ColorValue.B;				
-
-				txtHtmlValue.Text = ColorTranslator.ToHtml(ColorValue);
-				IsLoading = false;
-			}
-			catch (Exception ex)
-			{
-				MessageBox.Show(ex.Message + ex.StackTrace, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-			}
+			SetColorFrom(Color.FromArgb(Value));
 		}
-		public void SetColorFrom(int[] RGBA_Values)
-		{
-			try
-			{
-				if (RGBA_Values != null)
-				{
-					IsLoading = true;
-					lbTime.Text = string.Empty;
-					if (RGBA_Values.Length == 3) //<- RGB
-					{
-						ColorValue = Color.FromArgb(RGBA_Values[0], RGBA_Values[1], RGBA_Values[2]);
-					}
-					if (RGBA_Values.Length == 4) //<- ARGB
-					{
-						ColorValue = Color.FromArgb(RGBA_Values[0], RGBA_Values[1], RGBA_Values[2], RGBA_Values[3]);
-					}
-					if (RGBA_Values.Length == 5) //<- TARGB, T=Timeframe
-					{
-						ColorValue = Color.FromArgb(RGBA_Values[1], RGBA_Values[2], RGBA_Values[3], RGBA_Values[4]);
-						lbTime.Text = string.Format("T:{0}", RGBA_Values[0]);
-						this.Time = RGBA_Values[0];
-					}
-					ColorBox.BackColor = this.ColorValue;
-
-					A_Value.Value = ColorValue.A;
-					R_Value.Value = ColorValue.R;
-					G_Value.Value = ColorValue.G;
-					B_Value.Value = ColorValue.B;
-					
-					txtHtmlValue.Text = ColorTranslator.ToHtml(ColorValue);
-					IsLoading = false;
-				}
-			}
-			catch (Exception ex)
-			{
-				MessageBox.Show(ex.Message + ex.StackTrace, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-			}
-		}
-		public void SetColorFrom(decimal[] RGBA_Values)
-		{
-			try
-			{
-				if (RGBA_Values != null)
-				{
-					IsLoading = true;
-					lbTime.Text = string.Empty;
-					if (RGBA_Values.Length == 3) //<- RGB
-					{
-						ColorValue = Color.FromArgb((int)RGBA_Values[0], (int)RGBA_Values[1], (int)RGBA_Values[2]);
-					}
-					if (RGBA_Values.Length == 4) //<- ARGB
-					{
-						ColorValue = Color.FromArgb((int)RGBA_Values[0], (int)RGBA_Values[1], (int)RGBA_Values[2], (int)RGBA_Values[3]);
-					}
-					if (RGBA_Values.Length == 5) //<- TARGB, T=Timeframe
-					{
-						ColorValue = Color.FromArgb((int)RGBA_Values[1], (int)RGBA_Values[2], (int)RGBA_Values[3], (int)RGBA_Values[4]);
-						lbTime.Text = string.Format("T:{0:n4}", RGBA_Values[0]);
-						this.Time = RGBA_Values[0];
-
-						this.Alpha = ColorValue.A;
-						this.Red = ColorValue.R;
-						this.Green = ColorValue.G;
-						this.Blue = ColorValue.B;
-					}
-					ColorBox.BackColor = this.ColorValue;
-
-					A_Value.Value = ColorValue.A;
-					R_Value.Value = ColorValue.R;
-					G_Value.Value = ColorValue.G;
-					B_Value.Value = ColorValue.B;
-					
-					txtHtmlValue.Text = ColorTranslator.ToHtml(ColorValue);
-					IsLoading = false;
-				}
-			}
-			catch (Exception ex)
-			{
-				MessageBox.Show(ex.Message + ex.StackTrace, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-			}
-		}
+		/// <summary>Sets the selected color in all the Controls</summary><param name="Value">Color to show, can be an INT, HEX, HTML, 'R;G;B;A' or a Named color</param>
 		public void SetColorFrom(string Value)
 		{
-			try
+			SetColorFrom(ColorTranslator.FromHtml(Value));
+		}
+		/// <summary>Sets the selected color in all the Controls</summary><param name="Value">Color to show, can be RGB, ARGB or TARGB (Time).</param>
+		public void SetColorFrom(int[] RGBA_Values)
+		{
+			if (RGBA_Values.Length == 3) //<- RGB
 			{
-				IsLoading = true;
-				ColorValue = ColorTranslator.FromHtml(Value);
-				ColorBox.BackColor = this.ColorValue;
-
-				A_Value.Value = ColorValue.A;
-				R_Value.Value = ColorValue.R;
-				G_Value.Value = ColorValue.G;
-				B_Value.Value = ColorValue.B;
-
-				txtHtmlValue.Text = ColorTranslator.ToHtml(ColorValue);
-				IsLoading = false;
+				SetColorFrom(Color.FromArgb(RGBA_Values[0], RGBA_Values[1], RGBA_Values[2]));
 			}
-			catch (Exception ex)
+			if (RGBA_Values.Length == 4) //<- ARGB
 			{
-				MessageBox.Show(ex.Message + ex.StackTrace, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				SetColorFrom(Color.FromArgb(RGBA_Values[0], RGBA_Values[1], RGBA_Values[2], RGBA_Values[3]));
+			}
+			if (RGBA_Values.Length == 5) //<- TARGB, T=Timeframe
+			{
+				this.Time = RGBA_Values[0];
+				lbTime.Text = string.Format("T:{0}", RGBA_Values[0]);
+				SetColorFrom(Color.FromArgb(RGBA_Values[1], RGBA_Values[2], RGBA_Values[3], RGBA_Values[4]));
+			}
+		}
+		/// <summary>Sets the selected color in all the Controls</summary><param name="Value">Color to show, can be RGB, ARGB or TARGB (Time).</param>
+		public void SetColorFrom(decimal[] RGBA_Values)
+		{
+			if (RGBA_Values.Length == 3) //<- RGB
+			{
+				SetColorFrom(Color.FromArgb((int)RGBA_Values[0], (int)RGBA_Values[1], (int)RGBA_Values[2]));
+			}
+			if (RGBA_Values.Length == 4) //<- ARGB
+			{
+				SetColorFrom(Color.FromArgb((int)RGBA_Values[0], (int)RGBA_Values[1], (int)RGBA_Values[2], (int)RGBA_Values[3]));
+			}
+			if (RGBA_Values.Length == 5) //<- TARGB, T=Timeframe
+			{
+				this.Time = RGBA_Values[0];
+				lbTime.Text = string.Format("T:{0:n4}", RGBA_Values[0]);
+				SetColorFrom(Color.FromArgb((int)RGBA_Values[1], (int)RGBA_Values[2], (int)RGBA_Values[3], (int)RGBA_Values[4]));
 			}
 		}
 
-		
+
+
+		private void IncrementValue(TextBox control)
+		{
+			if (int.TryParse(control.Text, out int currentValue))
+			{
+				if (currentValue < 255)
+				{
+					control.Text = (currentValue + 1).ToString();
+				}
+			}
+		}
+		private void DecrementValue(TextBox control)
+		{
+			if (int.TryParse(control.Text, out int currentValue))
+			{
+				if (currentValue > 0)
+				{
+					control.Text = (currentValue - 1).ToString();
+				}
+			}
+		}
+
+
 	}
 }
