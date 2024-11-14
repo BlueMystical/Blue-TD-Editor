@@ -29,6 +29,7 @@ namespace TDeditor
 		/// </summary>
 		private void InitializeComponent()
 		{
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
 			this.cmdSearchTree = new System.Windows.Forms.Button();
 			this.txtSearchBox = new System.Windows.Forms.TextBox();
@@ -99,6 +100,7 @@ namespace TDeditor
 			// treeView1
 			// 
 			this.treeView1.Dock = System.Windows.Forms.DockStyle.Bottom;
+			this.treeView1.HideSelection = false;
 			this.treeView1.Location = new System.Drawing.Point(0, 32);
 			this.treeView1.Name = "treeView1";
 			this.treeView1.Size = new System.Drawing.Size(267, 603);
@@ -253,6 +255,7 @@ namespace TDeditor
 			this.Controls.Add(this.splitContainer1);
 			this.Controls.Add(this.statusStrip1);
 			this.Controls.Add(this.toolStrip1);
+			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.Name = "Form1";
 			this.Text = "Blue\'s TD Editor";
 			this.Load += new System.EventHandler(this.Form1_Load);

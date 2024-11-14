@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace BlueControls
@@ -15,6 +16,10 @@ namespace BlueControls
 		public decimal Time { get; set; } = 0;
 
 		private bool IsLoading = true;
+		
+		/// <summary>Custom Colors for the colorPick Dialog</summary>
+		public int[] CustomColors { get; set; } = Enumerable.Repeat(unchecked(16777215), 16).ToArray();
+
 
 		public ColorControl()
 		{
@@ -49,19 +54,22 @@ namespace BlueControls
 
 		private void ColorBox_DoubleClick(object sender, EventArgs e)
 		{
+			/* SHOWS A COLOR DIALOG TO PICK A NEW COLOR  */
 			ColorDialog Dialog = new ColorDialog()
 			{
 				AnyColor = true,
 				FullOpen = true,
 				AllowFullOpen = true,
 				SolidColorOnly = false,
-				Color = this.ColorValue
+				Color = this.ColorValue,
+				CustomColors = CustomColors
 			};
 			if (Dialog.ShowDialog() == DialogResult.OK)
 			{
 				IsLoading = true;
 
 				this.ColorValue = Dialog.Color;
+				this.CustomColors = Dialog.CustomColors;
 
 				A_Value.Value = ColorValue.A;
 				R_Value.Value = ColorValue.R;
@@ -69,12 +77,36 @@ namespace BlueControls
 				B_Value.Value = ColorValue.B;				
 
 				ColorBox.BackColor = this.ColorValue;
+				txtHtmlValue.Text = ColorTranslator.ToHtml(ColorValue);			
 
 				IsLoading = false;
 			}
 		}
+		private void ColorBox_Paint(object sender, PaintEventArgs e)
+		{
+			/*  DRAW A TRANSPARENCY GRID */
+			int gridSize = 8; //<- Size of the squares
+			int rows = (ColorBox.Height / gridSize) + 1; //<- To ensure grid covers the whole box
+			int cols = (ColorBox.Width / gridSize) + 1;
 
-		private void R_Value_ValueChanged(object sender, EventArgs e)
+			// Draw the grid layer
+			for (int row = 0; row < rows; row++)
+			{
+				for (int col = 0; col < cols; col++)
+				{
+					Rectangle rect = new Rectangle(col * gridSize, row * gridSize, gridSize, gridSize);
+					e.Graphics.FillRectangle((row + col) % 2 == 0 ? Brushes.Gray : Brushes.White, rect);
+				}
+			}
+
+			// Draw the ARGB color layer
+			using (SolidBrush brush = new SolidBrush(this.ColorValue))
+			{
+				e.Graphics.FillRectangle(brush, ColorBox.ClientRectangle);
+			}
+		}
+
+		private void RGB_Value_ValueChanged(object sender, EventArgs e)
 		{
 			if (!IsLoading)
 			{
@@ -85,47 +117,11 @@ namespace BlueControls
 					Convert.ToInt32(B_Value.Value)
 				);
 				ColorBox.BackColor = ColorValue;
+				txtHtmlValue.Text = ColorTranslator.ToHtml(ColorValue);
+				lblAlpha.Text = string.Format("A:{0:n1}%", A_Value.Value * 100 / 255);
 			}
 		}
-		private void G_Value_ValueChanged(object sender, EventArgs e)
-		{
-			if (!IsLoading)
-			{
-				ColorValue = Color.FromArgb(
-					Convert.ToInt32(A_Value.Value),
-					Convert.ToInt32(R_Value.Value),
-					Convert.ToInt32(G_Value.Value),
-					Convert.ToInt32(B_Value.Value)
-				);
-				ColorBox.BackColor = ColorValue;
-			}
-		}
-		private void B_Value_ValueChanged(object sender, EventArgs e)
-		{
-			if (!IsLoading)
-			{
-				ColorValue = Color.FromArgb(
-					Convert.ToInt32(A_Value.Value),
-					Convert.ToInt32(R_Value.Value),
-					Convert.ToInt32(G_Value.Value),
-					Convert.ToInt32(B_Value.Value)
-				);
-				ColorBox.BackColor = ColorValue;
-			}
-		}
-		private void A_Value_ValueChanged(object sender, EventArgs e)
-		{
-			if (!IsLoading)
-			{
-				ColorValue = Color.FromArgb(
-					Convert.ToInt32(A_Value.Value),
-					Convert.ToInt32(R_Value.Value),
-					Convert.ToInt32(G_Value.Value),
-					Convert.ToInt32(B_Value.Value)
-				);
-				ColorBox.BackColor = ColorValue;
-			}
-		}
+
 		private void txtHtmlValue_TextChanged(object sender, EventArgs e)
 		{
 			try

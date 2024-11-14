@@ -21,6 +21,7 @@ namespace TDeditor
 		private TreeNode[] searchResults;
 		private TreeNode lastSelectedNode; 
 		private bool isNodeValueUpdating;
+		public int[] customColors = new int[16];
 
 		string CurrentType = string.Empty;
 		dynamic JsonData = null;
@@ -480,6 +481,7 @@ namespace TDeditor
 							CurrentType = "Single Color:Decimal";
 							Valuecontrol_Color.SetColorFrom(intArray);
 							Valuecontrol_Color.Visible = true;
+							Valuecontrol_Color.CustomColors = customColors;
 						}
 						else if (e.Node.Text == "color")
 						{
@@ -488,6 +490,7 @@ namespace TDeditor
 								CurrentType = "Single Color:Decimal";
 								Valuecontrol_Color.SetColorFrom(intArray);
 								Valuecontrol_Color.Visible = true;
+								Valuecontrol_Color.CustomColors = customColors;
 							}
 							else
 							{
@@ -639,7 +642,7 @@ namespace TDeditor
 					colorStruct[3] = ColorValues[i + 3];
 					colorStruct[4] = ColorValues[i + 4];
 
-					tblModules.Controls.Add(new ColorControl(colorStruct) { Dock = DockStyle.Fill });
+					tblModules.Controls.Add(new ColorControl(colorStruct) { Dock = DockStyle.Fill, CustomColors = customColors });
 
 					colorStructs.Add(colorStruct);
 				}
@@ -680,7 +683,7 @@ namespace TDeditor
 					colorStruct[3] = ColorValues[i + 3];
 					colorStruct[4] = ColorValues[i + 4];
 
-					tblModules.Controls.Add(new ColorControl(colorStruct) { Dock = DockStyle.Fill });
+					tblModules.Controls.Add(new ColorControl(colorStruct) { Dock = DockStyle.Fill, CustomColors = customColors });
 
 					colorStructs.Add(colorStruct);
 				}

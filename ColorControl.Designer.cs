@@ -37,7 +37,7 @@ namespace BlueControls
 			this.label1 = new System.Windows.Forms.Label();
 			this.label2 = new System.Windows.Forms.Label();
 			this.label3 = new System.Windows.Forms.Label();
-			this.label4 = new System.Windows.Forms.Label();
+			this.lblAlpha = new System.Windows.Forms.Label();
 			this.label5 = new System.Windows.Forms.Label();
 			this.txtHtmlValue = new System.Windows.Forms.TextBox();
 			this.lbTime = new System.Windows.Forms.Label();
@@ -54,9 +54,10 @@ namespace BlueControls
 			this.ColorBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
 			this.ColorBox.Location = new System.Drawing.Point(4, 4);
 			this.ColorBox.Name = "ColorBox";
-			this.ColorBox.Size = new System.Drawing.Size(100, 54);
+			this.ColorBox.Size = new System.Drawing.Size(100, 55);
 			this.ColorBox.TabIndex = 0;
 			this.ColorBox.TabStop = false;
+			this.ColorBox.Paint += new System.Windows.Forms.PaintEventHandler(this.ColorBox_Paint);
 			this.ColorBox.DoubleClick += new System.EventHandler(this.ColorBox_DoubleClick);
 			// 
 			// R_Value
@@ -70,12 +71,13 @@ namespace BlueControls
 			this.R_Value.Name = "R_Value";
 			this.R_Value.Size = new System.Drawing.Size(42, 20);
 			this.R_Value.TabIndex = 1;
+			this.R_Value.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			this.R_Value.Value = new decimal(new int[] {
             255,
             0,
             0,
             0});
-			this.R_Value.ValueChanged += new System.EventHandler(this.R_Value_ValueChanged);
+			this.R_Value.ValueChanged += new System.EventHandler(this.RGB_Value_ValueChanged);
 			// 
 			// G_Value
 			// 
@@ -88,12 +90,13 @@ namespace BlueControls
 			this.G_Value.Name = "G_Value";
 			this.G_Value.Size = new System.Drawing.Size(42, 20);
 			this.G_Value.TabIndex = 2;
+			this.G_Value.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			this.G_Value.Value = new decimal(new int[] {
             255,
             0,
             0,
             0});
-			this.G_Value.ValueChanged += new System.EventHandler(this.G_Value_ValueChanged);
+			this.G_Value.ValueChanged += new System.EventHandler(this.RGB_Value_ValueChanged);
 			// 
 			// B_Value
 			// 
@@ -106,12 +109,13 @@ namespace BlueControls
 			this.B_Value.Name = "B_Value";
 			this.B_Value.Size = new System.Drawing.Size(42, 20);
 			this.B_Value.TabIndex = 3;
+			this.B_Value.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			this.B_Value.Value = new decimal(new int[] {
             255,
             0,
             0,
             0});
-			this.B_Value.ValueChanged += new System.EventHandler(this.B_Value_ValueChanged);
+			this.B_Value.ValueChanged += new System.EventHandler(this.RGB_Value_ValueChanged);
 			// 
 			// A_Value
 			// 
@@ -124,12 +128,13 @@ namespace BlueControls
 			this.A_Value.Name = "A_Value";
 			this.A_Value.Size = new System.Drawing.Size(42, 20);
 			this.A_Value.TabIndex = 4;
+			this.A_Value.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			this.A_Value.Value = new decimal(new int[] {
             255,
             0,
             0,
             0});
-			this.A_Value.ValueChanged += new System.EventHandler(this.A_Value_ValueChanged);
+			this.A_Value.ValueChanged += new System.EventHandler(this.RGB_Value_ValueChanged);
 			// 
 			// label1
 			// 
@@ -158,14 +163,14 @@ namespace BlueControls
 			this.label3.TabIndex = 7;
 			this.label3.Text = "B";
 			// 
-			// label4
+			// lblAlpha
 			// 
-			this.label4.AutoSize = true;
-			this.label4.Location = new System.Drawing.Point(120, 1);
-			this.label4.Name = "label4";
-			this.label4.Size = new System.Drawing.Size(14, 13);
-			this.label4.TabIndex = 8;
-			this.label4.Text = "A";
+			this.lblAlpha.AutoSize = true;
+			this.lblAlpha.Location = new System.Drawing.Point(106, 1);
+			this.lblAlpha.Name = "lblAlpha";
+			this.lblAlpha.Size = new System.Drawing.Size(43, 13);
+			this.lblAlpha.TabIndex = 8;
+			this.lblAlpha.Text = "A:100%";
 			// 
 			// label5
 			// 
@@ -182,6 +187,7 @@ namespace BlueControls
 			this.txtHtmlValue.Name = "txtHtmlValue";
 			this.txtHtmlValue.Size = new System.Drawing.Size(90, 20);
 			this.txtHtmlValue.TabIndex = 10;
+			this.txtHtmlValue.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			this.txtHtmlValue.TextChanged += new System.EventHandler(this.txtHtmlValue_TextChanged);
 			// 
 			// lbTime
@@ -200,7 +206,7 @@ namespace BlueControls
 			this.Controls.Add(this.lbTime);
 			this.Controls.Add(this.txtHtmlValue);
 			this.Controls.Add(this.label5);
-			this.Controls.Add(this.label4);
+			this.Controls.Add(this.lblAlpha);
 			this.Controls.Add(this.label3);
 			this.Controls.Add(this.label2);
 			this.Controls.Add(this.label1);
@@ -232,7 +238,7 @@ namespace BlueControls
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.Label label2;
 		private System.Windows.Forms.Label label3;
-		private System.Windows.Forms.Label label4;
+		private System.Windows.Forms.Label lblAlpha;
 		private System.Windows.Forms.Label label5;
 		private System.Windows.Forms.TextBox txtHtmlValue;
 		private System.Windows.Forms.Label lbTime;
