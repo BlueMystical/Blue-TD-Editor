@@ -1,4 +1,5 @@
 ﻿using BlueControls;
+using DarkModeForms;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -10,9 +11,10 @@ using System.Windows.Forms;
 
 namespace TDeditor
 {
-	public partial class Form1 : Form
+	public partial class Form1 : Form 
 	{
 		string _FilePath = string.Empty;
+		string _FileExtension = string.Empty;
 		string _LastFolder = string.Empty;
 		string _TheFileRaw = string.Empty;
 
@@ -21,6 +23,8 @@ namespace TDeditor
 		private TreeNode[] searchResults;
 		private TreeNode lastSelectedNode; 
 		private bool isNodeValueUpdating;
+		private DarkModeCS DM;
+
 		public int[] customColors = new int[16];
 
 		string CurrentType = string.Empty;
@@ -32,10 +36,12 @@ namespace TDeditor
 		public Form1()
 		{
 			InitializeComponent();
+			DM = new DarkModeCS(this);
 		}
 		public Form1(string FileToOpen)
 		{
 			InitializeComponent();
+			DM = new DarkModeCS(this);
 			if (!string.IsNullOrEmpty(FileToOpen))
 			{
 				_FilePath = FileToOpen;				
@@ -47,6 +53,9 @@ namespace TDeditor
 			// Gets the last used folder:
 			var lastFolder = Util.WinReg_ReadKey("Settings", "LastFolder");
 			_LastFolder = lastFolder != null ? lastFolder.ToString() : Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+
+			string valueString = Util.WinReg_ReadKey("Settings", "CustomColors") as string;
+			if (!string.IsNullOrEmpty(valueString)) { customColors = valueString.Split(',').Select(int.Parse).ToArray(); }
 
 			customCulture.NumberFormat.NumberDecimalSeparator = ".";
 			customCulture.NumberFormat.NumberGroupSeparator = ",";
@@ -60,8 +69,6 @@ namespace TDeditor
 			System.Threading.Thread.CurrentThread.CurrentUICulture = customCulture;
 			System.Globalization.CultureInfo.DefaultThreadCurrentCulture = customCulture;
 			System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = customCulture;
-
-
 		}
 		private void Form1_Shown(object sender, EventArgs e)
 		{
@@ -70,10 +77,15 @@ namespace TDeditor
 				_LastFolder = System.IO.Path.GetDirectoryName(_FilePath);
 				Util.WinReg_WriteKey("Settings", "LastFolder", _LastFolder);
 
+
 				System.IO.FileInfo file = new System.IO.FileInfo(_FilePath);
 				this.lblStatus.Text = string.Format("{0} | {1}", _FilePath, Util.GetFileSize(file.Length));
 				OpenTDfile(Util.ReadTextFile(_FilePath, Util.TextEncoding.UTF8));
 			}
+		}
+		private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+		{
+			
 		}
 
 		#region Open & de-serialize TD files
@@ -84,7 +96,7 @@ namespace TDeditor
 			{				
 				OpenFileDialog OFDialog = new OpenFileDialog()
 				{
-					Filter = "Mod Files|*.td;*.cls|All Files|*.*",
+					Filter = "Mod Files|*.td;*.cls;*.sfx|All Files|*.*",
 					FilterIndex = 0,
 					DefaultExt = "td",
 					AddExtension = true,
@@ -98,6 +110,7 @@ namespace TDeditor
 					System.IO.FileInfo file = new System.IO.FileInfo(OFDialog.FileName);
 
 					_FilePath = OFDialog.FileName;
+					_FileExtension = System.IO.Path.GetExtension(OFDialog.FileName); //<-Extension del archivo
 					_LastFolder = System.IO.Path.GetDirectoryName(OFDialog.FileName);
 
 					//Save the last used folder:
@@ -126,7 +139,7 @@ namespace TDeditor
 						string Ext = System.IO.Path.GetExtension(_FilePath); //<-Extension del archivo
 						SaveFileDialog SFDialog = new SaveFileDialog()
 						{
-							Filter = "Mod Files|*.td;*.cls|All Files|*.*",
+							Filter = "Mod Files|*.td;*.cls;*.sfx|All Files|*.*",
 							FilterIndex = 0,
 							DefaultExt = Ext,
 							AddExtension = true,
@@ -161,9 +174,6 @@ namespace TDeditor
 
 				string preProcessedData = ConvertToJson(_TheFileRaw);
 				this.JsonData = JsonConvert.DeserializeObject<dynamic>(preProcessedData);
-				//var settings = new JsonSerializerSettings();
-				//settings.Converters.Add(new DecimalJsonConverter());
-				//dynamic jsonData = JsonConvert.DeserializeObject<dynamic>(preProcessedData, settings);
 
 				treeView1.BeginUpdate();
 				treeView1.Nodes.Clear();
@@ -190,10 +200,10 @@ namespace TDeditor
 				foreach (var property in obj)
 				{
 					TreeNode newNode = new TreeNode(property.Name);
-					if (property.Value is JArray)
+					if (property.Value is JArray myArray)
 					{
 						// Check if the JArray contains numeric or string values
-						if (property.Value.Count > 0)
+						if (myArray.Count > 0)
 						{
 							// Some Arrays are not shown as childs in the tree:
 							if (Util.In(property.Name.ToString(), "color", "width", "spline"))
@@ -206,27 +216,21 @@ namespace TDeditor
 							}
 							else
 							{
-								var firstElement = property.Value[0];
-								if (firstElement.Type == JTokenType.Integer)
+								Type realType = GetElementType(myArray);
+								if (realType == Type.GetType("System.Int32"))
 								{
 									newNode.Tag = property.Value.ToObject<int[]>();
 								}
-								else if (firstElement.Type == JTokenType.Float)
+								else if (realType == Type.GetType("System.Decimal"))
 								{
 									newNode.Tag = property.Value.ToObject<decimal[]>();
 								}
-								else if (firstElement.Type == JTokenType.String)
+								else if (realType == Type.GetType("System.String"))
 								{
 									newNode.Tag = property.Value.ToObject<string[]>();
 								}
-								else if (firstElement.Type == JTokenType.Object)
+								else if (realType == Type.GetType("System.Object"))
 								{
-									/* directions   =   [
-									   {
-										  x   =   1
-										  y   =   0
-									   }
-									] */
 									newNode.Tag = property.Value.ToObject<dynamic[]>();
 								}
 								else
@@ -260,16 +264,61 @@ namespace TDeditor
 			}
 		}
 
+		public static Type GetElementType(JArray jArray)
+		{
+			bool hasString = false;
+			bool hasInteger = false;
+			bool hasDecimal = false;
+
+			foreach (var element in jArray)
+			{
+				switch (element.Type)
+				{
+					case JTokenType.String:
+						hasString = true;
+						break;
+					case JTokenType.Integer:
+						hasInteger = true;
+						break;
+					case JTokenType.Float:
+						hasDecimal = true;
+						break;
+					case JTokenType.Object:
+						// Handle nested objects if needed
+						break;
+					default:
+						// Handle other types as Object
+						break;
+				}				
+			}
+
+			if (hasDecimal)
+			{
+				return typeof(decimal);
+			}
+			if (hasInteger)
+			{
+				return typeof(int);
+			}
+			if (hasString)
+			{
+				return typeof(string);
+			}
+
+			// Default to Object if no specific type was found
+			return typeof(object);
+		}
 
 
 		// Retrieves the modified data from the TreeView and builds an string having the hierycal structure
 		private void TraverseNodes(TreeNode treeNode, StringBuilder sb, int indentLevel)
 		{
 			string indent = new string(' ', indentLevel * 3); // 3 spaces per indentation level
+			string spacing = _FileExtension == ".td" ? " " : "   ";
 
 			if (treeNode.Nodes.Count > 0) //<- A node with Childs:
 			{
-				sb.AppendLine($"{indent}{FixSpacedStrings(treeNode.Text)} = {{");
+				sb.AppendLine($"{indent}{FixSpacedStrings(treeNode.Text)}{spacing}={spacing}{{");
 				foreach (TreeNode childNode in treeNode.Nodes)
 				{
 					// Recursive call to process the Child nodes:
@@ -282,7 +331,7 @@ namespace TDeditor
 				// Node contains an Array:
 				if (treeNode.Tag is Array array)
 				{
-					sb.AppendLine($"{indent}{FixSpacedStrings(treeNode.Text)} = [");
+					sb.AppendLine($"{indent}{FixSpacedStrings(treeNode.Text)}{spacing}={spacing}[");
 					for (int i = 0; i < array.Length; i++)
 					{
 						var item = array.GetValue(i);
@@ -301,7 +350,7 @@ namespace TDeditor
 								{
 									value = $"\"{value}\""; //<- Wrap string values in quotes
 								}
-								sb.AppendLine($"{indent}      {FixSpacedStrings(property.Name)} = {value}{(property == obj.Properties().Last() ? "" : ",")}");
+								sb.AppendLine($"{indent}      {FixSpacedStrings(property.Name)}{spacing}={spacing}{value}{(property == obj.Properties().Last() ? "" : ",")}");
 							}
 							sb.AppendLine($"{indent}   }}{(i < array.Length - 1 ? "," : "")}");
 						}
@@ -324,19 +373,20 @@ namespace TDeditor
 						}
 						else if (treeNode.Tag != null && treeNode.Tag is JValue jValue)
 						{
-							// Format Decimal values with 6 decimal places:
-							Type realType = jValue.Value.GetType();
+							// Format Decimal values:
 							if (jValue.Type == JTokenType.Float)
 							{
-								value = $"{jValue.ToObject<decimal>():F6}";
+								// Determine the decimal format based on the file extension
+								string format = (_FileExtension == ".td") ? "F6" : "G";
+								value = jValue.ToObject<decimal>().ToString(format);
 							}
 						}
-						sb.AppendLine($"{indent}{FixSpacedStrings(treeNode.Text)} = {value}");
+						sb.AppendLine($"{indent}{FixSpacedStrings(treeNode.Text)}{spacing}={spacing}{value}");
 					}
 					else
 					{
-						Console.WriteLine($"ERROR: No Tag Data was found!|{ treeNode.FullPath }");
-						sb.AppendLine($"{indent}{treeNode.Text} = {{ }}");
+						// An Empty Object Value:
+						sb.AppendLine($"{indent}{treeNode.Text}{spacing}={spacing}{{\r\n{indent}}}");
 					}
 				}
 			}
@@ -481,16 +531,18 @@ namespace TDeditor
 							CurrentType = "Single Color:Decimal";
 							Valuecontrol_Color.SetColorFrom(intArray);
 							Valuecontrol_Color.Visible = true;
-							Valuecontrol_Color.CustomColors = customColors;
+							Valuecontrol_Color.CustomColors = this.customColors;
+							Valuecontrol_Color.OnCustomColorsChanged += Valuecontrol_Color_OnCustomColorsChanged;
 						}
-						else if (e.Node.Text == "color")
+						else if (Util.In(e.Node.Text, "color", "ageSpline"))
 						{
 							if (intArray.Length <= 4)
 							{
 								CurrentType = "Single Color:Decimal";
 								Valuecontrol_Color.SetColorFrom(intArray);
 								Valuecontrol_Color.Visible = true;
-								Valuecontrol_Color.CustomColors = customColors;
+								Valuecontrol_Color.CustomColors = this.customColors;
+								Valuecontrol_Color.OnCustomColorsChanged += Valuecontrol_Color_OnCustomColorsChanged;
 							}
 							else
 							{
@@ -512,8 +564,6 @@ namespace TDeditor
 								int rowIndex = Valuecontrol_Array.Rows.Add();
 								Valuecontrol_Array.Rows[rowIndex].Cells[0].Value = number;
 							}
-							//Valuecontrol_Text.Text = string.Join(", ", intArray);
-							//Valuecontrol_Text.Visible = true;
 						}						
 					}
 					else if (e.Node.Tag is int[])
@@ -526,14 +576,18 @@ namespace TDeditor
 							CurrentType = "Single Color:Integer";
 							Valuecontrol_Color.SetColorFrom(intArray);
 							Valuecontrol_Color.Visible = true;
+							Valuecontrol_Color.CustomColors = this.customColors;
+							Valuecontrol_Color.OnCustomColorsChanged += Valuecontrol_Color_OnCustomColorsChanged;
 						}
-						else if (e.Node.Text == "color")
+						else if (Util.In(e.Node.Text, "color", "ageSpline"))
 						{
 							if (intArray.Length <= 4)
 							{
 								CurrentType = "Single Color:Integer";
 								Valuecontrol_Color.SetColorFrom(intArray);
 								Valuecontrol_Color.Visible = true;
+								Valuecontrol_Color.CustomColors = this.customColors;
+								Valuecontrol_Color.OnCustomColorsChanged += Valuecontrol_Color_OnCustomColorsChanged;
 							}
 							else
 							{
@@ -615,6 +669,13 @@ namespace TDeditor
 			}
 		}
 
+		private void Valuecontrol_Color_OnCustomColorsChanged(object sender, EventArgs e)
+		{
+			//Store the Custom colors in the Registry:
+			customColors = sender as int[];
+			Util.WinReg_WriteKey("Settings", "CustomColors", string.Join(",", customColors));
+		}
+
 		public void ShowColorSprite(decimal[] ColorValues)
 		{
 			try
@@ -683,7 +744,9 @@ namespace TDeditor
 					colorStruct[3] = ColorValues[i + 3];
 					colorStruct[4] = ColorValues[i + 4];
 
-					tblModules.Controls.Add(new ColorControl(colorStruct) { Dock = DockStyle.Fill, CustomColors = customColors });
+					var ColorCRTL = new ColorControl(colorStruct) { Dock = DockStyle.Fill, CustomColors = customColors };
+					ColorCRTL.OnCustomColorsChanged += Valuecontrol_Color_OnCustomColorsChanged;
+					tblModules.Controls.Add(ColorCRTL);
 
 					colorStructs.Add(colorStruct);
 				}
@@ -699,7 +762,76 @@ namespace TDeditor
 		}
 
 		#region Search Nodes
+		// Handle KeyPress event for the search box
+		private void txtSearchBox_KeyPress(object sender, KeyPressEventArgs e)
+		{
+			if (e.KeyChar == (char)Keys.Enter)
+			{
+				PerformSearch(forward: true);
+			}
+		}
 
+		// Handle Click event for the search button
+		private void cmdSearchTree_Click(object sender, EventArgs e)
+		{
+			PerformSearch(forward: true);
+		}
+
+		// Handle Click event for the previous search button
+		private void cmdPrevSearchTree_Click(object sender, EventArgs e)
+		{
+			PerformSearch(forward: false);
+		}
+
+		private void PerformSearch(bool forward)
+		{
+			string searchText = txtSearchBox.Text.Trim();
+			if (string.IsNullOrEmpty(searchText)) return;
+
+			if (searchText != lastSearchText)
+			{
+				lastSearchText = searchText;
+				currentSearchIndex = 0;
+				searchResults = FindNodes(treeView1.Nodes, searchText).ToArray();
+			}
+
+			if (searchResults.Length > 0)
+			{
+				if (forward)
+				{
+					currentSearchIndex = (currentSearchIndex + 1) % searchResults.Length;
+				}
+				else
+				{
+					currentSearchIndex = (currentSearchIndex - 1 + searchResults.Length) % searchResults.Length;
+				}
+
+				TreeNode node = searchResults[currentSearchIndex];
+				treeView1.SelectedNode = node;
+				treeView1.SelectedNode.Expand();
+				treeView1.Focus();
+			}
+			else
+			{
+				MessageBox.Show("No matches found.");
+			}
+		}
+
+		private List<TreeNode> FindNodes(TreeNodeCollection nodes, string searchText)
+		{
+			List<TreeNode> results = new List<TreeNode>();
+			foreach (TreeNode node in nodes)
+			{
+				if (node.Text.Contains(searchText))
+				{
+					results.Add(node);
+				}
+				results.AddRange(FindNodes(node.Nodes, searchText));
+			}
+			return results;
+		}
+
+		/*
 		private void txtSearchBox_KeyPress(object sender, KeyPressEventArgs e)
 		{
 			if (e.KeyChar == (char)Keys.Enter)
@@ -725,6 +857,7 @@ namespace TDeditor
 				else { MessageBox.Show("No matches found."); }
 			}
 		}
+
 		private void cmdSearchTree_Click(object sender, EventArgs e)
 		{
 			string searchText = txtSearchBox.Text.Trim(); 
@@ -761,7 +894,7 @@ namespace TDeditor
 			} 
 			return results; 
 		}
-
+		*/
 		#endregion
 
 		public void SaveNodeChange()

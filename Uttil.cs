@@ -148,7 +148,8 @@ namespace TDeditor
 			/// <summary>CodePage:1200; utf-16; Unicode UTF-16, little endian byte order (BMP of ISO 10646);</summary>
 			Unicode = 1200,
 			/// <summary>CodePage:65001; utf-8; Unicode (UTF-8)</summary>
-			UTF8 = 65001
+			UTF8 = 65001,
+			UTF8_BOM = 65001
 		}
 
 		/// <summary>Guarda Datos en un Archivo de Texto usando la Codificacion especificada.</summary>
@@ -169,6 +170,11 @@ namespace TDeditor
 					 https://docs.microsoft.com/es-es/windows/desktop/Intl/code-page-identifiers  */
 
 					System.Text.Encoding ENCODING = System.Text.Encoding.GetEncoding((int)CodePage); //<- Unicode Garantiza Maxima compatibilidad
+					if (CodePage == TextEncoding.UTF8)
+					{
+						ENCODING = new System.Text.UTF8Encoding(false); // Use UTF8Encoding without BOM
+					}
+
 					using (System.IO.FileStream FILE = new System.IO.FileStream(FilePath, System.IO.FileMode.Create))
 					{
 						using (System.IO.StreamWriter WRITER = new System.IO.StreamWriter(FILE, ENCODING))

@@ -13,9 +13,6 @@ G:\@Proyectos\VS2019\TDeditor\bin\Debug\Newtonsoft.Json.pdb
 G:\@Proyectos\VS2019\TDeditor\bin\Debug\Newtonsoft.Json.xml
 G:\@Proyectos\VS2019\TDeditor\obj\Debug\TDeditor.csproj.CopyComplete
 G:\@Proyectos\VS2019\TDeditor\obj\Debug\BlueControls.ColorControl.resources
-G:\@Proyectos\VS2019\Blue-TD-Editor\bin\Debug\TDeditor.exe.config
-G:\@Proyectos\VS2019\Blue-TD-Editor\bin\Debug\TDeditor.exe
-G:\@Proyectos\VS2019\Blue-TD-Editor\bin\Debug\TDeditor.pdb
 G:\@Proyectos\VS2019\Blue-TD-Editor\bin\Debug\Newtonsoft.Json.dll
 G:\@Proyectos\VS2019\Blue-TD-Editor\bin\Debug\Newtonsoft.Json.pdb
 G:\@Proyectos\VS2019\Blue-TD-Editor\bin\Debug\Newtonsoft.Json.xml
@@ -26,5 +23,14 @@ G:\@Proyectos\VS2019\Blue-TD-Editor\obj\Debug\TDeditor.Properties.Resources.reso
 G:\@Proyectos\VS2019\Blue-TD-Editor\obj\Debug\TDeditor.csproj.GenerateResource.cache
 G:\@Proyectos\VS2019\Blue-TD-Editor\obj\Debug\TDeditor.csproj.CoreCompileInputs.cache
 G:\@Proyectos\VS2019\Blue-TD-Editor\obj\Debug\TDeditor.csproj.CopyComplete
-G:\@Proyectos\VS2019\Blue-TD-Editor\obj\Debug\TDeditor.exe
-G:\@Proyectos\VS2019\Blue-TD-Editor\obj\Debug\TDeditor.pdb
+G:\@Proyectos\VS2019\Blue-TD-Editor\bin\Debug\MysticalEditor.exe.config
+G:\@Proyectos\VS2019\Blue-TD-Editor\bin\Debug\MysticalEditor.exe
+G:\@Proyectos\VS2019\Blue-TD-Editor\bin\Debug\MysticalEditor.pdb
+G:\@Proyectos\VS2019\Blue-TD-Editor\obj\Debug\MysticalEditor.exe
+G:\@Proyectos\VS2019\Blue-TD-Editor\obj\Debug\MysticalEditor.pdb
+G:\@Proyectos\VS2019\Blue-TD-Editor\bin\Debug\MysticalEditor\MysticalEditor.exe.config
+G:\@Proyectos\VS2019\Blue-TD-Editor\bin\Debug\MysticalEditor\MysticalEditor.exe
+G:\@Proyectos\VS2019\Blue-TD-Editor\bin\Debug\MysticalEditor\MysticalEditor.pdb
+G:\@Proyectos\VS2019\Blue-TD-Editor\bin\Debug\MysticalEditor\Newtonsoft.Json.dll
+G:\@Proyectos\VS2019\Blue-TD-Editor\bin\Debug\MysticalEditor\Newtonsoft.Json.pdb
+G:\@Proyectos\VS2019\Blue-TD-Editor\bin\Debug\MysticalEditor\Newtonsoft.Json.xml

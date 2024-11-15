@@ -35,17 +35,18 @@ namespace TDeditor
 			this.txtSearchBox = new System.Windows.Forms.TextBox();
 			this.treeView1 = new System.Windows.Forms.TreeView();
 			this.panel1 = new System.Windows.Forms.Panel();
-			this.cmdApplyChange = new System.Windows.Forms.Button();
 			this.Valuecontrol_Color = new BlueControls.ColorControl();
 			this.Valuecontrol_Numeric = new System.Windows.Forms.NumericUpDown();
 			this.Valuecontrol_Text = new System.Windows.Forms.TextBox();
 			this.tblModules = new System.Windows.Forms.TableLayoutPanel();
 			this.Valuecontrol_Array = new System.Windows.Forms.DataGridView();
+			this.cmdApplyChange = new System.Windows.Forms.Button();
 			this.toolStrip1 = new System.Windows.Forms.ToolStrip();
 			this.cmsOpenFile = new System.Windows.Forms.ToolStripButton();
 			this.cmdSaveFile = new System.Windows.Forms.ToolStripButton();
 			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
 			this.lblStatus = new System.Windows.Forms.ToolStripStatusLabel();
+			this.cmdPrevSearchTree = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
 			this.splitContainer1.Panel1.SuspendLayout();
 			this.splitContainer1.Panel2.SuspendLayout();
@@ -65,6 +66,7 @@ namespace TDeditor
 			// 
 			// splitContainer1.Panel1
 			// 
+			this.splitContainer1.Panel1.Controls.Add(this.cmdPrevSearchTree);
 			this.splitContainer1.Panel1.Controls.Add(this.cmdSearchTree);
 			this.splitContainer1.Panel1.Controls.Add(this.txtSearchBox);
 			this.splitContainer1.Panel1.Controls.Add(this.treeView1);
@@ -81,7 +83,7 @@ namespace TDeditor
 			this.cmdSearchTree.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.cmdSearchTree.Location = new System.Drawing.Point(189, 5);
 			this.cmdSearchTree.Name = "cmdSearchTree";
-			this.cmdSearchTree.Size = new System.Drawing.Size(75, 23);
+			this.cmdSearchTree.Size = new System.Drawing.Size(54, 23);
 			this.cmdSearchTree.TabIndex = 2;
 			this.cmdSearchTree.Text = "Search";
 			this.cmdSearchTree.UseVisualStyleBackColor = true;
@@ -95,6 +97,7 @@ namespace TDeditor
 			this.txtSearchBox.Name = "txtSearchBox";
 			this.txtSearchBox.Size = new System.Drawing.Size(171, 20);
 			this.txtSearchBox.TabIndex = 1;
+			this.txtSearchBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			this.txtSearchBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtSearchBox_KeyPress);
 			// 
 			// treeView1
@@ -109,7 +112,6 @@ namespace TDeditor
 			// 
 			// panel1
 			// 
-			this.panel1.Controls.Add(this.cmdApplyChange);
 			this.panel1.Controls.Add(this.Valuecontrol_Color);
 			this.panel1.Controls.Add(this.Valuecontrol_Numeric);
 			this.panel1.Controls.Add(this.Valuecontrol_Text);
@@ -121,20 +123,26 @@ namespace TDeditor
 			this.panel1.Size = new System.Drawing.Size(529, 635);
 			this.panel1.TabIndex = 0;
 			// 
-			// cmdApplyChange
-			// 
-			this.cmdApplyChange.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.cmdApplyChange.Location = new System.Drawing.Point(429, 34);
-			this.cmdApplyChange.Name = "cmdApplyChange";
-			this.cmdApplyChange.Size = new System.Drawing.Size(75, 23);
-			this.cmdApplyChange.TabIndex = 3;
-			this.cmdApplyChange.Text = "Apply";
-			this.cmdApplyChange.UseVisualStyleBackColor = true;
-			this.cmdApplyChange.Click += new System.EventHandler(this.cmdApplyChange_Click);
-			// 
 			// Valuecontrol_Color
 			// 
 			this.Valuecontrol_Color.ColorValue = System.Drawing.Color.White;
+			this.Valuecontrol_Color.CustomColors = new int[] {
+        16777215,
+        16777215,
+        16777215,
+        16777215,
+        16777215,
+        16777215,
+        16777215,
+        16777215,
+        16777215,
+        16777215,
+        16777215,
+        16777215,
+        16777215,
+        16777215,
+        16777215,
+        16777215};
 			this.Valuecontrol_Color.Location = new System.Drawing.Point(33, 22);
 			this.Valuecontrol_Color.Name = "Valuecontrol_Color";
 			this.Valuecontrol_Color.Size = new System.Drawing.Size(304, 58);
@@ -196,6 +204,17 @@ namespace TDeditor
 			this.Valuecontrol_Array.TabIndex = 5;
 			this.Valuecontrol_Array.Visible = false;
 			// 
+			// cmdApplyChange
+			// 
+			this.cmdApplyChange.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.cmdApplyChange.Location = new System.Drawing.Point(440, 0);
+			this.cmdApplyChange.Name = "cmdApplyChange";
+			this.cmdApplyChange.Size = new System.Drawing.Size(75, 23);
+			this.cmdApplyChange.TabIndex = 3;
+			this.cmdApplyChange.Text = "Apply";
+			this.cmdApplyChange.UseVisualStyleBackColor = true;
+			this.cmdApplyChange.Click += new System.EventHandler(this.cmdApplyChange_Click);
+			// 
 			// toolStrip1
 			// 
 			this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -209,21 +228,20 @@ namespace TDeditor
 			// 
 			// cmsOpenFile
 			// 
-			this.cmsOpenFile.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.cmsOpenFile.Image = global::TDeditor.Properties.Resources._1352899744_folder_horizontal_open;
+			this.cmsOpenFile.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
 			this.cmsOpenFile.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.cmsOpenFile.Name = "cmsOpenFile";
-			this.cmsOpenFile.Size = new System.Drawing.Size(23, 22);
+			this.cmsOpenFile.Size = new System.Drawing.Size(67, 22);
 			this.cmsOpenFile.Text = "Open File..";
 			this.cmsOpenFile.Click += new System.EventHandler(this.cmsOpenFile_Click);
 			// 
 			// cmdSaveFile
 			// 
-			this.cmdSaveFile.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.cmdSaveFile.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
 			this.cmdSaveFile.Image = global::TDeditor.Properties.Resources._1352899444_disk;
 			this.cmdSaveFile.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.cmdSaveFile.Name = "cmdSaveFile";
-			this.cmdSaveFile.Size = new System.Drawing.Size(23, 22);
+			this.cmdSaveFile.Size = new System.Drawing.Size(62, 22);
 			this.cmdSaveFile.Text = "Save File..";
 			this.cmdSaveFile.Click += new System.EventHandler(this.cmdSaveFile_Click);
 			// 
@@ -243,17 +261,29 @@ namespace TDeditor
 			this.lblStatus.Size = new System.Drawing.Size(10, 17);
 			this.lblStatus.Text = ".";
 			// 
+			// cmdPrevSearchTree
+			// 
+			this.cmdPrevSearchTree.Location = new System.Drawing.Point(241, 5);
+			this.cmdPrevSearchTree.Name = "cmdPrevSearchTree";
+			this.cmdPrevSearchTree.Size = new System.Drawing.Size(23, 23);
+			this.cmdPrevSearchTree.TabIndex = 3;
+			this.cmdPrevSearchTree.Text = "<";
+			this.cmdPrevSearchTree.UseVisualStyleBackColor = true;
+			this.cmdPrevSearchTree.Click += new System.EventHandler(this.cmdPrevSearchTree_Click);
+			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(800, 682);
+			this.Controls.Add(this.cmdApplyChange);
 			this.Controls.Add(this.splitContainer1);
 			this.Controls.Add(this.statusStrip1);
 			this.Controls.Add(this.toolStrip1);
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.Name = "Form1";
 			this.Text = "Blue\'s TD Editor";
+			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
 			this.Load += new System.EventHandler(this.Form1_Load);
 			this.Shown += new System.EventHandler(this.Form1_Shown);
 			this.splitContainer1.Panel1.ResumeLayout(false);
@@ -292,6 +322,7 @@ namespace TDeditor
 		private System.Windows.Forms.Button cmdApplyChange;
 		private System.Windows.Forms.TableLayoutPanel tblModules;
 		private System.Windows.Forms.DataGridView Valuecontrol_Array;
+		private System.Windows.Forms.Button cmdPrevSearchTree;
 	}
 }
 

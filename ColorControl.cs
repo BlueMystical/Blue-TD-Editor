@@ -8,6 +8,8 @@ namespace BlueControls
 	/// <summary>Custom Control to Show and Edit Color Values.</summary>
 	public partial class ColorControl : UserControl
 	{
+		public event EventHandler OnCustomColorsChanged = delegate { };
+
 		/// <summary>The Selected color.</summary>
 		public Color ColorValue { get; set; } = Color.White;
 
@@ -24,7 +26,7 @@ namespace BlueControls
 		private ToolTip toolTip;
 
 		/// <summary>Custom Colors for the colorPick Dialog</summary>
-		public int[] CustomColors { get; set; } = Enumerable.Repeat(unchecked(16777215), 16).ToArray();
+		public int[] CustomColors { get; set; } = new int[16]; // Enumerable.Repeat(unchecked(16777215), 16).ToArray();
 
 
 		public ColorControl()
@@ -75,6 +77,7 @@ namespace BlueControls
 		private void ColorBox_DoubleClick(object sender, EventArgs e)
 		{
 			/* SHOWS A COLOR DIALOG TO PICK A NEW COLOR  */
+			int Alpha = this.ColorValue.A;
 			ColorDialog Dialog = new ColorDialog()
 			{
 				AnyColor = true,
@@ -87,9 +90,14 @@ namespace BlueControls
 			if (Dialog.ShowDialog() == DialogResult.OK)
 			{
 				IsLoading = true;
-				this.CustomColors = Dialog.CustomColors;
+				
+				if (this.CustomColors != Dialog.CustomColors)
+				{
+					this.CustomColors = Dialog.CustomColors;
+					OnCustomColorsChanged?.Invoke(this.CustomColors, EventArgs.Empty);
+				}
 
-				SetColorFrom(Dialog.Color);
+				SetColorFrom(Color.FromArgb(Alpha, Dialog.Color.R, Dialog.Color.G, Dialog.Color.B));
 			}
 		}
 		private void ColorBox_Paint(object sender, PaintEventArgs e)
