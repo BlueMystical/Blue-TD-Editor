@@ -5,3 +5,5 @@
 
  ![image](https://github.com/user-attachments/assets/8c86a4ec-8304-4d72-a449-b063915af946)
 
+ [Buy me a Coffe](https://buymeacoffee.com/blue.mystic)
+
