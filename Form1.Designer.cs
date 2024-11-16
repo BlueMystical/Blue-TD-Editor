@@ -31,6 +31,7 @@ namespace TDeditor
 		{
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+			this.cmdPrevSearchTree = new System.Windows.Forms.Button();
 			this.cmdSearchTree = new System.Windows.Forms.Button();
 			this.txtSearchBox = new System.Windows.Forms.TextBox();
 			this.treeView1 = new System.Windows.Forms.TreeView();
@@ -46,7 +47,7 @@ namespace TDeditor
 			this.cmdSaveFile = new System.Windows.Forms.ToolStripButton();
 			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
 			this.lblStatus = new System.Windows.Forms.ToolStripStatusLabel();
-			this.cmdPrevSearchTree = new System.Windows.Forms.Button();
+			this.lblIsItAColor = new System.Windows.Forms.LinkLabel();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
 			this.splitContainer1.Panel1.SuspendLayout();
 			this.splitContainer1.Panel2.SuspendLayout();
@@ -77,6 +78,16 @@ namespace TDeditor
 			this.splitContainer1.Size = new System.Drawing.Size(800, 635);
 			this.splitContainer1.SplitterDistance = 267;
 			this.splitContainer1.TabIndex = 0;
+			// 
+			// cmdPrevSearchTree
+			// 
+			this.cmdPrevSearchTree.Location = new System.Drawing.Point(241, 5);
+			this.cmdPrevSearchTree.Name = "cmdPrevSearchTree";
+			this.cmdPrevSearchTree.Size = new System.Drawing.Size(23, 23);
+			this.cmdPrevSearchTree.TabIndex = 3;
+			this.cmdPrevSearchTree.Text = "<";
+			this.cmdPrevSearchTree.UseVisualStyleBackColor = true;
+			this.cmdPrevSearchTree.Click += new System.EventHandler(this.cmdPrevSearchTree_Click);
 			// 
 			// cmdSearchTree
 			// 
@@ -112,6 +123,7 @@ namespace TDeditor
 			// 
 			// panel1
 			// 
+			this.panel1.Controls.Add(this.lblIsItAColor);
 			this.panel1.Controls.Add(this.Valuecontrol_Color);
 			this.panel1.Controls.Add(this.Valuecontrol_Numeric);
 			this.panel1.Controls.Add(this.Valuecontrol_Text);
@@ -261,15 +273,17 @@ namespace TDeditor
 			this.lblStatus.Size = new System.Drawing.Size(10, 17);
 			this.lblStatus.Text = ".";
 			// 
-			// cmdPrevSearchTree
+			// lblIsItAColor
 			// 
-			this.cmdPrevSearchTree.Location = new System.Drawing.Point(241, 5);
-			this.cmdPrevSearchTree.Name = "cmdPrevSearchTree";
-			this.cmdPrevSearchTree.Size = new System.Drawing.Size(23, 23);
-			this.cmdPrevSearchTree.TabIndex = 3;
-			this.cmdPrevSearchTree.Text = "<";
-			this.cmdPrevSearchTree.UseVisualStyleBackColor = true;
-			this.cmdPrevSearchTree.Click += new System.EventHandler(this.cmdPrevSearchTree_Click);
+			this.lblIsItAColor.AutoSize = true;
+			this.lblIsItAColor.Location = new System.Drawing.Point(397, 32);
+			this.lblIsItAColor.Name = "lblIsItAColor";
+			this.lblIsItAColor.Size = new System.Drawing.Size(55, 13);
+			this.lblIsItAColor.TabIndex = 6;
+			this.lblIsItAColor.TabStop = true;
+			this.lblIsItAColor.Text = "linkLabel1";
+			this.lblIsItAColor.Visible = false;
+			this.lblIsItAColor.Click += new System.EventHandler(this.lblIsItAColor_Click);
 			// 
 			// Form1
 			// 
@@ -323,6 +337,7 @@ namespace TDeditor
 		private System.Windows.Forms.TableLayoutPanel tblModules;
 		private System.Windows.Forms.DataGridView Valuecontrol_Array;
 		private System.Windows.Forms.Button cmdPrevSearchTree;
+		private System.Windows.Forms.LinkLabel lblIsItAColor;
 	}
 }
 

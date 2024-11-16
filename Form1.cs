@@ -82,6 +82,7 @@ namespace TDeditor
 				this.lblStatus.Text = string.Format("{0} | {1}", _FilePath, Util.GetFileSize(file.Length));
 				OpenTDfile(Util.ReadTextFile(_FilePath, Util.TextEncoding.UTF8));
 			}
+			CheckForUpdates();
 		}
 		private void Form1_FormClosing(object sender, FormClosingEventArgs e)
 		{
@@ -518,6 +519,7 @@ namespace TDeditor
 				Valuecontrol_Color.Visible = false;
 				tblModules.Visible = false;
 				Valuecontrol_Array.Visible = false;
+				lblIsItAColor.Visible = false;
 
 				if (e.Node.Tag != null) 
 				{
@@ -564,6 +566,13 @@ namespace TDeditor
 								int rowIndex = Valuecontrol_Array.Rows.Add();
 								Valuecontrol_Array.Rows[rowIndex].Cells[0].Value = number;
 							}
+
+							string CMode = "Single Color:Decimal";
+							if (intArray.Length > 4) CMode = "Color Sprite:Decimal";
+
+							lblIsItAColor.Text = "Is this a Color?";
+							lblIsItAColor.Tag = CMode;
+							lblIsItAColor.Visible = true;
 						}						
 					}
 					else if (e.Node.Tag is int[])
@@ -579,7 +588,7 @@ namespace TDeditor
 							Valuecontrol_Color.CustomColors = this.customColors;
 							Valuecontrol_Color.OnCustomColorsChanged += Valuecontrol_Color_OnCustomColorsChanged;
 						}
-						else if (Util.In(e.Node.Text, "color", "ageSpline"))
+						else if (Util.In(e.Node.Text, "color"))
 						{
 							if (intArray.Length <= 4)
 							{
@@ -609,6 +618,13 @@ namespace TDeditor
 								int rowIndex = Valuecontrol_Array.Rows.Add();
 								Valuecontrol_Array.Rows[rowIndex].Cells[0].Value = number;
 							}
+
+							string CMode = "Single Color:Integer";
+							if (intArray.Length > 4) CMode = "Color Sprite:Integer";
+
+							lblIsItAColor.Text = "Is this a Color?";
+							lblIsItAColor.Tag = CMode;
+							lblIsItAColor.Visible = true;
 						}						
 					}
 					else if (e.Node.Tag is string[])
@@ -831,70 +847,6 @@ namespace TDeditor
 			return results;
 		}
 
-		/*
-		private void txtSearchBox_KeyPress(object sender, KeyPressEventArgs e)
-		{
-			if (e.KeyChar == (char)Keys.Enter)
-			{
-				//Se Presionó la Tecla ENTER
-				string searchText = txtSearchBox.Text.Trim();
-				if (string.IsNullOrEmpty(searchText)) return;
-				if (searchText != lastSearchText)
-				{
-					lastSearchText = searchText;
-					currentSearchIndex = 0;
-					searchResults = FindNodes(treeView1.Nodes, searchText).ToArray();
-				}
-				if (searchResults.Length > 0)
-				{
-					if (currentSearchIndex >= searchResults.Length) { currentSearchIndex = 0; }
-					TreeNode node = searchResults[currentSearchIndex];
-					treeView1.SelectedNode = node;
-					treeView1.SelectedNode.Expand();
-					treeView1.Focus();
-					currentSearchIndex++;
-				}
-				else { MessageBox.Show("No matches found."); }
-			}
-		}
-
-		private void cmdSearchTree_Click(object sender, EventArgs e)
-		{
-			string searchText = txtSearchBox.Text.Trim(); 
-			if (string.IsNullOrEmpty(searchText)) return; 
-			if (searchText != lastSearchText) 
-			{ 
-				lastSearchText = searchText; 
-				currentSearchIndex = 0; 
-				searchResults = FindNodes(treeView1.Nodes, searchText).ToArray(); 
-			}
-			if (searchResults.Length > 0) 
-			{
-				try
-				{
-					if (currentSearchIndex >= searchResults.Length) { currentSearchIndex = 0; }
-					TreeNode node = searchResults[currentSearchIndex];
-					treeView1.SelectedNode = node;
-					treeView1.SelectedNode?.Expand();
-					treeView1.Focus();
-					currentSearchIndex++;
-				}
-				catch { }				
-			} 
-			else { MessageBox.Show("No matches found."); }
-		}
-		private List<TreeNode> FindNodes(TreeNodeCollection nodes, string searchText) 
-		{ 
-			List<TreeNode> results = new List<TreeNode>(); 
-			foreach (TreeNode node in nodes) 
-			{ 
-				if (node.Text.Contains(searchText))
-				{ results.Add(node); } 
-				results.AddRange(FindNodes(node.Nodes, searchText)); 
-			} 
-			return results; 
-		}
-		*/
 		#endregion
 
 		public void SaveNodeChange()
@@ -1010,6 +962,56 @@ namespace TDeditor
 			SaveNodeChange();
 		}
 
-		
+		private void lblIsItAColor_Click(object sender, EventArgs e)
+		{
+			if (lblIsItAColor.Tag != null)
+			{
+				string CMode = lblIsItAColor.Tag as string;
+
+				lblIsItAColor.Visible = false;
+				tblModules.Visible = false;
+				Valuecontrol_Array.Visible = false;
+
+				switch (CMode)
+				{
+					case "Single Color:Decimal":
+						CurrentType = CMode;
+						Valuecontrol_Color.SetColorFrom(lastSelectedNode.Tag as decimal[]);
+						Valuecontrol_Color.Visible = true;
+						Valuecontrol_Color.CustomColors = this.customColors;
+						Valuecontrol_Color.OnCustomColorsChanged += Valuecontrol_Color_OnCustomColorsChanged;
+						break;
+					case "Color Sprite:Decimal":
+						CurrentType = CMode;
+						ShowColorSprite(lastSelectedNode.Tag as decimal[]);
+						break;
+					case "Color Sprite:Integer":
+						CurrentType = CMode;
+						ShowColorSprite(lastSelectedNode.Tag as int[]);
+						break;
+					case "Single Color:Integer":
+						CurrentType = CMode;
+						Valuecontrol_Color.SetColorFrom(lastSelectedNode.Tag as int[]);
+						Valuecontrol_Color.Visible = true;
+						Valuecontrol_Color.CustomColors = this.customColors;
+						Valuecontrol_Color.OnCustomColorsChanged += Valuecontrol_Color_OnCustomColorsChanged;
+						break;
+					default:
+						break;
+				}
+			}
+		}
+
+		private void CheckForUpdates()
+		{
+			try
+			{
+				System.Diagnostics.Process.Start("BlueUpdater.exe");
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show(ex.Message + ex.StackTrace, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
+		}
 	}
 }

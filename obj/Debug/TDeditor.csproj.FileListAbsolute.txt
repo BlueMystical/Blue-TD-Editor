@@ -34,3 +34,7 @@ G:\@Proyectos\VS2019\Blue-TD-Editor\bin\Debug\MysticalEditor\MysticalEditor.pdb
 G:\@Proyectos\VS2019\Blue-TD-Editor\bin\Debug\MysticalEditor\Newtonsoft.Json.dll
 G:\@Proyectos\VS2019\Blue-TD-Editor\bin\Debug\MysticalEditor\Newtonsoft.Json.pdb
 G:\@Proyectos\VS2019\Blue-TD-Editor\bin\Debug\MysticalEditor\Newtonsoft.Json.xml
+G:\@Proyectos\VS2019\Blue-TD-Editor\bin\Debug\MysticalEditor\Version.json
+G:\@Proyectos\VS2019\Blue-TD-Editor\bin\Debug\MysticalEditor\BlueUpdater.exe
+G:\@Proyectos\VS2019\Blue-TD-Editor\bin\Debug\MysticalEditor\BlueUpdater.pdb
+G:\@Proyectos\VS2019\Blue-TD-Editor\bin\Debug\MysticalEditor\BlueUpdater.exe.config
