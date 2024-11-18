@@ -2,6 +2,8 @@
   "GitHub-Owner": "BlueMystical",
   "GitHub-Repo": "Blue-TD-Editor",
   "ReleaseFile": "MysticalEditor.zip",
+  "AutoExtract": true,
   "MainExecutable": "MysticalEditor.exe",
-  "CurrentVersion": "1.1.3"
+  "AutoRun": true,
+  "CurrentVersion": "1.1.0"
 }

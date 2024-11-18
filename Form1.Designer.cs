@@ -36,6 +36,7 @@ namespace TDeditor
 			this.txtSearchBox = new System.Windows.Forms.TextBox();
 			this.treeView1 = new System.Windows.Forms.TreeView();
 			this.panel1 = new System.Windows.Forms.Panel();
+			this.lblIsItAColor = new System.Windows.Forms.LinkLabel();
 			this.Valuecontrol_Color = new BlueControls.ColorControl();
 			this.Valuecontrol_Numeric = new System.Windows.Forms.NumericUpDown();
 			this.Valuecontrol_Text = new System.Windows.Forms.TextBox();
@@ -47,7 +48,6 @@ namespace TDeditor
 			this.cmdSaveFile = new System.Windows.Forms.ToolStripButton();
 			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
 			this.lblStatus = new System.Windows.Forms.ToolStripStatusLabel();
-			this.lblIsItAColor = new System.Windows.Forms.LinkLabel();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
 			this.splitContainer1.Panel1.SuspendLayout();
 			this.splitContainer1.Panel2.SuspendLayout();
@@ -76,12 +76,13 @@ namespace TDeditor
 			// 
 			this.splitContainer1.Panel2.Controls.Add(this.panel1);
 			this.splitContainer1.Size = new System.Drawing.Size(800, 635);
-			this.splitContainer1.SplitterDistance = 267;
+			this.splitContainer1.SplitterDistance = 266;
 			this.splitContainer1.TabIndex = 0;
 			// 
 			// cmdPrevSearchTree
 			// 
-			this.cmdPrevSearchTree.Location = new System.Drawing.Point(241, 5);
+			this.cmdPrevSearchTree.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.cmdPrevSearchTree.Location = new System.Drawing.Point(240, 5);
 			this.cmdPrevSearchTree.Name = "cmdPrevSearchTree";
 			this.cmdPrevSearchTree.Size = new System.Drawing.Size(23, 23);
 			this.cmdPrevSearchTree.TabIndex = 3;
@@ -92,7 +93,7 @@ namespace TDeditor
 			// cmdSearchTree
 			// 
 			this.cmdSearchTree.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.cmdSearchTree.Location = new System.Drawing.Point(189, 5);
+			this.cmdSearchTree.Location = new System.Drawing.Point(188, 5);
 			this.cmdSearchTree.Name = "cmdSearchTree";
 			this.cmdSearchTree.Size = new System.Drawing.Size(54, 23);
 			this.cmdSearchTree.TabIndex = 2;
@@ -106,7 +107,7 @@ namespace TDeditor
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.txtSearchBox.Location = new System.Drawing.Point(12, 6);
 			this.txtSearchBox.Name = "txtSearchBox";
-			this.txtSearchBox.Size = new System.Drawing.Size(171, 20);
+			this.txtSearchBox.Size = new System.Drawing.Size(170, 20);
 			this.txtSearchBox.TabIndex = 1;
 			this.txtSearchBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			this.txtSearchBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtSearchBox_KeyPress);
@@ -117,7 +118,7 @@ namespace TDeditor
 			this.treeView1.HideSelection = false;
 			this.treeView1.Location = new System.Drawing.Point(0, 32);
 			this.treeView1.Name = "treeView1";
-			this.treeView1.Size = new System.Drawing.Size(267, 603);
+			this.treeView1.Size = new System.Drawing.Size(266, 603);
 			this.treeView1.TabIndex = 0;
 			this.treeView1.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterSelect);
 			// 
@@ -132,8 +133,20 @@ namespace TDeditor
 			this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.panel1.Location = new System.Drawing.Point(0, 0);
 			this.panel1.Name = "panel1";
-			this.panel1.Size = new System.Drawing.Size(529, 635);
+			this.panel1.Size = new System.Drawing.Size(530, 635);
 			this.panel1.TabIndex = 0;
+			// 
+			// lblIsItAColor
+			// 
+			this.lblIsItAColor.AutoSize = true;
+			this.lblIsItAColor.Location = new System.Drawing.Point(397, 32);
+			this.lblIsItAColor.Name = "lblIsItAColor";
+			this.lblIsItAColor.Size = new System.Drawing.Size(55, 13);
+			this.lblIsItAColor.TabIndex = 6;
+			this.lblIsItAColor.TabStop = true;
+			this.lblIsItAColor.Text = "linkLabel1";
+			this.lblIsItAColor.Visible = false;
+			this.lblIsItAColor.Click += new System.EventHandler(this.lblIsItAColor_Click);
 			// 
 			// Valuecontrol_Color
 			// 
@@ -200,7 +213,7 @@ namespace TDeditor
 			this.tblModules.RowCount = 2;
 			this.tblModules.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
 			this.tblModules.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-			this.tblModules.Size = new System.Drawing.Size(358, 611);
+			this.tblModules.Size = new System.Drawing.Size(359, 611);
 			this.tblModules.TabIndex = 4;
 			// 
 			// Valuecontrol_Array
@@ -212,7 +225,7 @@ namespace TDeditor
 			this.Valuecontrol_Array.Location = new System.Drawing.Point(32, 22);
 			this.Valuecontrol_Array.Name = "Valuecontrol_Array";
 			this.Valuecontrol_Array.RowHeadersVisible = false;
-			this.Valuecontrol_Array.Size = new System.Drawing.Size(358, 610);
+			this.Valuecontrol_Array.Size = new System.Drawing.Size(359, 610);
 			this.Valuecontrol_Array.TabIndex = 5;
 			this.Valuecontrol_Array.Visible = false;
 			// 
@@ -272,18 +285,6 @@ namespace TDeditor
 			this.lblStatus.Name = "lblStatus";
 			this.lblStatus.Size = new System.Drawing.Size(10, 17);
 			this.lblStatus.Text = ".";
-			// 
-			// lblIsItAColor
-			// 
-			this.lblIsItAColor.AutoSize = true;
-			this.lblIsItAColor.Location = new System.Drawing.Point(397, 32);
-			this.lblIsItAColor.Name = "lblIsItAColor";
-			this.lblIsItAColor.Size = new System.Drawing.Size(55, 13);
-			this.lblIsItAColor.TabIndex = 6;
-			this.lblIsItAColor.TabStop = true;
-			this.lblIsItAColor.Text = "linkLabel1";
-			this.lblIsItAColor.Visible = false;
-			this.lblIsItAColor.Click += new System.EventHandler(this.lblIsItAColor_Click);
 			// 
 			// Form1
 			// 
