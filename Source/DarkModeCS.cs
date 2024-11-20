@@ -188,13 +188,13 @@ namespace DarkModeForms
 		public static extern int DwmGetWindowAttribute(IntPtr hwnd, int dwAttribute, out RECT pvAttribute, int cbAttribute);
 
 		[DllImport("uxtheme.dll", CharSet = CharSet.Unicode)]
-		private static extern int SetWindowTheme(IntPtr hWnd, string pszSubAppName, string pszSubIdList);
+		public static extern int SetWindowTheme(IntPtr hWnd, string pszSubAppName, string pszSubIdList);
 
 		[DllImport("dwmapi.dll", EntryPoint = "#127")]
 		public static extern void DwmGetColorizationParameters(ref DWMCOLORIZATIONcolors colors);
 
 		[DllImport("Gdi32.dll", EntryPoint = "CreateRoundRectRgn")]
-		private static extern IntPtr CreateRoundRectRgn
+		public static extern IntPtr CreateRoundRectRgn
 		(
 		  int nLeftRect,     // x-coordinate of upper-left corner
 		  int nTopRect,      // y-coordinate of upper-left corner

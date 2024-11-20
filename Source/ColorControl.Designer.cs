@@ -59,7 +59,7 @@ namespace BlueControls
 			// label1
 			// 
 			this.label1.AutoSize = true;
-			this.label1.Location = new System.Drawing.Point(176, 1);
+			this.label1.Location = new System.Drawing.Point(170, 1);
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(15, 13);
 			this.label1.TabIndex = 5;
@@ -68,7 +68,7 @@ namespace BlueControls
 			// label2
 			// 
 			this.label2.AutoSize = true;
-			this.label2.Location = new System.Drawing.Point(224, 1);
+			this.label2.Location = new System.Drawing.Point(219, 1);
 			this.label2.Name = "label2";
 			this.label2.Size = new System.Drawing.Size(15, 13);
 			this.label2.TabIndex = 6;
@@ -77,7 +77,7 @@ namespace BlueControls
 			// label3
 			// 
 			this.label3.AutoSize = true;
-			this.label3.Location = new System.Drawing.Point(272, 1);
+			this.label3.Location = new System.Drawing.Point(270, 1);
 			this.label3.Name = "label3";
 			this.label3.Size = new System.Drawing.Size(14, 13);
 			this.label3.TabIndex = 7;
@@ -136,7 +136,7 @@ namespace BlueControls
 			// R_Value
 			// 
 			this.R_Value.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.R_Value.Location = new System.Drawing.Point(167, 16);
+			this.R_Value.Location = new System.Drawing.Point(159, 16);
 			this.R_Value.Name = "R_Value";
 			this.R_Value.Size = new System.Drawing.Size(34, 20);
 			this.R_Value.TabIndex = 13;
@@ -150,7 +150,7 @@ namespace BlueControls
 			// G_Value
 			// 
 			this.G_Value.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.G_Value.Location = new System.Drawing.Point(213, 16);
+			this.G_Value.Location = new System.Drawing.Point(209, 16);
 			this.G_Value.Name = "G_Value";
 			this.G_Value.Size = new System.Drawing.Size(34, 20);
 			this.G_Value.TabIndex = 14;

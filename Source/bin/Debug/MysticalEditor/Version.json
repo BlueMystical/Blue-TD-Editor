@@ -1,9 +1,21 @@
 {
+  "_comment": "This JSON file contains configuration for the Updater program.",
+
   "GitHub-Owner": "BlueMystical",
   "GitHub-Repo": "Blue-TD-Editor",
   "ReleaseFile": "MysticalEditor.zip",
-  "AutoExtract": true,
+  "FolderContained": true,
   "MainExecutable": "MysticalEditor.exe",
   "AutoRun": true,
-  "CurrentVersion": "1.1.4"
+  "CurrentVersion": "1.1.5",
+
+  "_comments": {
+    "GitHub-Owner": "The GitHub user who owns the repository.",
+    "GitHub-Repo": "The name of the repository on GitHub.",
+    "ReleaseFile": "The file to be downloaded from the release.",
+    "FolderContained": "Indicates if the release is contained within a folder.",
+    "MainExecutable": "The main executable file for the application.",
+    "AutoRun": "Indicates if the 'MainExecutable' should run automatically after extraction.",
+    "CurrentVersion": "The current version of the application."
+  }
 }
