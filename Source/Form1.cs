@@ -1,29 +1,37 @@
 ﻿using BlueControls;
+using ControlTreeView;
 using DarkModeForms;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace TDeditor
 {
-	public partial class Form1 : Form 
+	public partial class Form1 : Form
 	{
 		string _FilePath = string.Empty;
 		string _FileExtension = string.Empty;
 		string _LastFolder = string.Empty;
 		string _TheFileRaw = string.Empty;
+		string _PaletteFolder = string.Empty;
+		string _PaletteFile = string.Empty;
 
-		private int currentSearchIndex = 0; 
-		private string lastSearchText = string.Empty; 
+		private int currentSearchIndex = 0;
+		private string lastSearchText = string.Empty;
 		private TreeNode[] searchResults;
-		private TreeNode lastSelectedNode; 
+		private TreeNode lastSelectedNode;
 		private bool isNodeValueUpdating;
 		private DarkModeCS DM;
+		private ColorControl selectedColorControl;
+		private readonly object _lock = new object();
 
 		public int[] customColors = new int[16];
 
@@ -32,7 +40,7 @@ namespace TDeditor
 
 		//Obligar a usar los puntos y las comas;
 		System.Globalization.CultureInfo customCulture = (System.Globalization.CultureInfo)System.Threading.Thread.CurrentThread.CurrentCulture.Clone();
-		
+
 		public Form1()
 		{
 			InitializeComponent();
@@ -41,21 +49,29 @@ namespace TDeditor
 		public Form1(string FileToOpen)
 		{
 			InitializeComponent();
-			DM = new DarkModeCS(this);
+			DM = new DarkModeCS(this, true);
 			if (!string.IsNullOrEmpty(FileToOpen))
 			{
-				_FilePath = FileToOpen;				
+				_FilePath = FileToOpen;
 			}
 		}
 
 		private void Form1_Load(object sender, EventArgs e)
 		{
-			// Gets the last used folder:
+			// Gets the last used folders:
 			var lastFolder = Util.WinReg_ReadKey("Settings", "LastFolder");
 			_LastFolder = lastFolder != null ? lastFolder.ToString() : Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 
+			lastFolder = Util.WinReg_ReadKey("Settings", "LastPaletteFolder");
+			_PaletteFolder = lastFolder != null ? lastFolder.ToString() : Util.AppExePath;
+
+			lastFolder = Util.WinReg_ReadKey("Settings", "LastPaletteFile");
+			_PaletteFile = lastFolder != null ? lastFolder.ToString() : "./color_pallete.json";
+
 			string valueString = Util.WinReg_ReadKey("Settings", "CustomColors") as string;
 			if (!string.IsNullOrEmpty(valueString)) { customColors = valueString.Split(',').Select(int.Parse).ToArray(); }
+
+			LoadSearchTerms();
 
 			customCulture.NumberFormat.NumberDecimalSeparator = ".";
 			customCulture.NumberFormat.NumberGroupSeparator = ",";
@@ -70,23 +86,26 @@ namespace TDeditor
 			System.Globalization.CultureInfo.DefaultThreadCurrentCulture = customCulture;
 			System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = customCulture;
 		}
-		private void Form1_Shown(object sender, EventArgs e)
+		private async void Form1_Shown(object sender, EventArgs e)
 		{
 			if (!string.IsNullOrEmpty(_FilePath))
 			{
 				_LastFolder = System.IO.Path.GetDirectoryName(_FilePath);
 				Util.WinReg_WriteKey("Settings", "LastFolder", _LastFolder);
 
-
 				System.IO.FileInfo file = new System.IO.FileInfo(_FilePath);
 				this.lblStatus.Text = string.Format("{0} | {1}", _FilePath, Util.GetFileSize(file.Length));
-				OpenTDfile(Util.ReadTextFile(_FilePath, Util.TextEncoding.UTF8));
+
+				string fileContent = Util.ReadTextFile(_FilePath, Util.TextEncoding.UTF8);
+				await OpenTDfileAsync(fileContent);
 			}
+
+			LoadPallette(_PaletteFile);
 			CheckForUpdates();
 		}
 		private void Form1_FormClosing(object sender, FormClosingEventArgs e)
 		{
-			
+
 		}
 
 		#region Open & de-serialize TD files
@@ -94,7 +113,7 @@ namespace TDeditor
 		private void cmsOpenFile_Click(object sender, EventArgs e)
 		{
 			try
-			{				
+			{
 				OpenFileDialog OFDialog = new OpenFileDialog()
 				{
 					Filter = "Mod Files|*.td;*.cls;*.sfx|All Files|*.*",
@@ -119,7 +138,7 @@ namespace TDeditor
 
 					this.lblStatus.Text = string.Format("{0} | {1}", OFDialog.FileName, Util.GetFileSize(file.Length));
 
-					OpenTDfile(Util.ReadTextFile(_FilePath, Util.TextEncoding.UTF8));
+					OpenTDfileAsync(Util.ReadTextFile(_FilePath, Util.TextEncoding.UTF8));
 				}
 
 			}
@@ -162,33 +181,47 @@ namespace TDeditor
 			}
 		}
 
-		public void OpenTDfile(string pRawFileContent)
+		public async Task OpenTDfileAsync(string pRawFileContent)
 		{
 			try
 			{
-				this.Cursor = Cursors.WaitCursor;
-				searchResults = null;
-				currentSearchIndex = 0;
-				lastSelectedNode = null;
-				lastSearchText = string.Empty;
-				_TheFileRaw = pRawFileContent;			
+				this.Invoke(new Action(() => this.Cursor = Cursors.WaitCursor));
 
-				string preProcessedData = ConvertToJson(_TheFileRaw);
-				this.JsonData = JsonConvert.DeserializeObject<dynamic>(preProcessedData);
+				await Task.Run(() =>
+				{
+					lock (_lock)
+					{
+						searchResults = null;
+						currentSearchIndex = 0;
+						lastSelectedNode = null;
+						lastSearchText = string.Empty;
+						_TheFileRaw = pRawFileContent;
 
-				treeView1.BeginUpdate();
-				treeView1.Nodes.Clear();
-				TreeNode rootNode = new TreeNode("Root");
-				AddNodes(rootNode, JsonData);
-				treeView1.Nodes.Add(rootNode);
-				treeView1.EndUpdate();
-				treeView1.ExpandAll();
+						string preProcessedData = ConvertToJson(_TheFileRaw);
+						this.JsonData = JsonConvert.DeserializeObject<dynamic>(preProcessedData);
+					}
+				});
+
+				this.Invoke(new Action(() =>
+				{
+					treeView1.BeginUpdate();
+					treeView1.Nodes.Clear();
+					TreeNode rootNode = new TreeNode("Root");
+					AddNodes(rootNode, JsonData);
+					treeView1.Nodes.Add(rootNode);
+					treeView1.EndUpdate();
+					treeView1.ExpandAll();
+				}));
 			}
 			catch (Exception ex)
 			{
-				MessageBox.Show(ex.Message + ex.StackTrace, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				this.Invoke(new Action(() =>
+					MessageBox.Show(ex.Message + ex.StackTrace, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error)));
 			}
-			finally { this.Cursor = Cursors.Default; }
+			finally
+			{
+				this.Invoke(new Action(() => this.Cursor = Cursors.Default));
+			}
 		}
 
 		/// <summary>Recursive method to add Nodes to the Treeview.</summary>
@@ -238,7 +271,7 @@ namespace TDeditor
 								{
 									AddNodes(newNode, property.Value);
 								}
-							}							
+							}
 						}
 					}
 					else
@@ -290,7 +323,7 @@ namespace TDeditor
 					default:
 						// Handle other types as Object
 						break;
-				}				
+				}
 			}
 
 			if (hasDecimal)
@@ -510,9 +543,9 @@ namespace TDeditor
 		private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
 		{
 			/* When a Node of the Tree is clicked, shows its Value in an adecuate Control  */
-			if (!isNodeValueUpdating) 
+			if (!isNodeValueUpdating)
 			{
-				
+
 				lastSelectedNode = e.Node;
 				Valuecontrol_Text.Visible = false;
 				Valuecontrol_Numeric.Visible = false;
@@ -521,11 +554,11 @@ namespace TDeditor
 				Valuecontrol_Array.Visible = false;
 				lblIsItAColor.Visible = false;
 
-				if (e.Node.Tag != null) 
+				if (e.Node.Tag != null)
 				{
 					//Check if the node contains an Array of color numbers:
 					if (e.Node.Tag is decimal[])
-					{ 
+					{
 						decimal[] intArray = (decimal[])e.Node.Tag;
 
 						if (e.Node.Text == "tint")
@@ -554,7 +587,7 @@ namespace TDeditor
 						}
 						else
 						{
-							CurrentType = "Array:Decimal"; 
+							CurrentType = "Array:Decimal";
 							Valuecontrol_Array.Rows.Clear();
 							Valuecontrol_Array.Columns.Clear();
 							Valuecontrol_Array.Visible = true;
@@ -573,7 +606,7 @@ namespace TDeditor
 							lblIsItAColor.Text = "Is this a Color?";
 							lblIsItAColor.Tag = CMode;
 							lblIsItAColor.Visible = true;
-						}						
+						}
 					}
 					else if (e.Node.Tag is int[])
 					{
@@ -610,7 +643,7 @@ namespace TDeditor
 							Valuecontrol_Array.Rows.Clear();
 							Valuecontrol_Array.Columns.Clear();
 							Valuecontrol_Array.Visible = true;
-							Valuecontrol_Array.Columns.Add(e.Node.Text, e.Node.Text);							
+							Valuecontrol_Array.Columns.Add(e.Node.Text, e.Node.Text);
 
 							foreach (var number in intArray)
 							{
@@ -625,7 +658,7 @@ namespace TDeditor
 							lblIsItAColor.Text = "Is this a Color?";
 							lblIsItAColor.Tag = CMode;
 							lblIsItAColor.Visible = true;
-						}						
+						}
 					}
 					else if (e.Node.Tag is string[])
 					{
@@ -669,19 +702,21 @@ namespace TDeditor
 								Valuecontrol_Numeric.DecimalPlaces = 0;
 								Valuecontrol_Numeric.Value = Convert.ToInt32(lastSelectedNode.Tag);
 							}
-						}					
+						}
 						Valuecontrol_Numeric.Visible = true;
 					}
-					else {
+					else
+					{
 						CurrentType = "Single Value:String";
 						Valuecontrol_Text.Text = e.Node.Tag.ToString();
 						Valuecontrol_Text.Visible = true;
-					} 
-				} 
-				else {
+					}
+				}
+				else
+				{
 					CurrentType = "Single Value:Null";
-					Valuecontrol_Text.Text = string.Empty; 
-				} 
+					Valuecontrol_Text.Text = string.Empty;
+				}
 			}
 		}
 
@@ -719,7 +754,14 @@ namespace TDeditor
 					colorStruct[3] = ColorValues[i + 3];
 					colorStruct[4] = ColorValues[i + 4];
 
-					tblModules.Controls.Add(new ColorControl(colorStruct) { Dock = DockStyle.Fill, CustomColors = customColors });
+					ColorControl _ctrl = new ColorControl(colorStruct) { Dock = DockStyle.Fill, CustomColors = customColors };
+					_ctrl.Enter += (object sender, EventArgs e) =>
+					{
+						// Get the row index of the TextBox that triggered the event
+						selectedColorControl = (sender as ColorControl);
+						Console.WriteLine($"Selected Row: {selectedColorControl.ColorValue}");
+					};
+					tblModules.Controls.Add(_ctrl);
 
 					colorStructs.Add(colorStruct);
 				}
@@ -733,6 +775,12 @@ namespace TDeditor
 				MessageBox.Show(ex.Message + ex.StackTrace, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 		}
+
+		private void _ctrl_Enter(object sender, EventArgs e)
+		{
+			throw new NotImplementedException();
+		}
+
 		public void ShowColorSprite(int[] ColorValues)
 		{
 			try
@@ -778,6 +826,38 @@ namespace TDeditor
 		}
 
 		#region Search Nodes
+
+		private void SaveSearchTerm(string term)
+		{
+			// Retrieve the existing list and add the new term
+			string[] existingTerms = (string[])Util.WinReg_ReadKey("Settings", "SearchHistory", new string[] { });
+			List<string> termsList = existingTerms != null ? new List<string>(existingTerms) : new List<string>();
+
+			if (!termsList.Contains(term))
+			{
+				termsList.Add(term);
+			}
+
+			Util.WinReg_WriteKey("Settings", "SearchHistory", termsList.ToArray());
+		}
+		private void LoadSearchTerms()
+		{
+			string[] existingTerms = (string[])Util.WinReg_ReadKey("Settings", "SearchHistory", new string[] { });
+
+			if (existingTerms != null)
+			{
+				cboSearchBox.Items.AddRange(existingTerms);
+			}
+		}
+		private void cboSearchBox_KeyDown(object sender, KeyEventArgs e)
+		{
+			if (e.KeyCode == Keys.Enter)
+			{
+				SaveSearchTerm(cboSearchBox.Text); // Perform your search operation here }
+				PerformSearch(forward: true);
+			}
+		}
+
 		// Handle KeyPress event for the search box
 		private void txtSearchBox_KeyPress(object sender, KeyPressEventArgs e)
 		{
@@ -801,7 +881,7 @@ namespace TDeditor
 
 		private void PerformSearch(bool forward)
 		{
-			string searchText = txtSearchBox.Text.Trim();
+			string searchText = cboSearchBox.Text.Trim();
 			if (string.IsNullOrEmpty(searchText)) return;
 
 			if (searchText != lastSearchText)
@@ -853,20 +933,20 @@ namespace TDeditor
 		{
 			try
 			{
-				if (lastSelectedNode != null && lastSelectedNode.Tag != null) 
+				if (lastSelectedNode != null && lastSelectedNode.Tag != null)
 				{
 					isNodeValueUpdating = true;
 
 					switch (CurrentType)
-					{						
+					{
 						case "Single Value:Integer":
 							lastSelectedNode.Tag = Convert.ToInt32(Valuecontrol_Numeric.Value);
 							break;
 						case "Single Value:Decimal":
-							lastSelectedNode.Tag = Convert.ToDecimal(Valuecontrol_Numeric.Value); 
+							lastSelectedNode.Tag = Convert.ToDecimal(Valuecontrol_Numeric.Value);
 							break;
 						case "Single Value:String":
-							lastSelectedNode.Tag = Convert.ToString(Valuecontrol_Text.Text); 
+							lastSelectedNode.Tag = Convert.ToString(Valuecontrol_Text.Text);
 							break;
 						case "Single Value:Null":
 							//lastSelectedNode.Tag = null;
@@ -906,7 +986,7 @@ namespace TDeditor
 								output.Add(ctrl.ColorValue.B);
 							}
 							lastSelectedNode.Tag = output.ToArray();
-							break;						
+							break;
 						case "Color Sprite:Integer":
 							List<int> decArray = new List<int>();
 							foreach (ColorControl ctrl in tblModules.Controls)
@@ -957,10 +1037,6 @@ namespace TDeditor
 			}
 		}
 
-		private void cmdApplyChange_Click(object sender, EventArgs e)
-		{
-			SaveNodeChange();
-		}
 
 		private void lblIsItAColor_Click(object sender, EventArgs e)
 		{
@@ -1006,12 +1082,165 @@ namespace TDeditor
 		{
 			try
 			{
-				System.Diagnostics.Process.Start("BlueUpdater.exe");
+				if (File.Exists("./BlueUpdater.exe"))
+				{
+					System.Diagnostics.Process.Start("BlueUpdater.exe");
+				}
 			}
 			catch (Exception ex)
 			{
 				MessageBox.Show(ex.Message + ex.StackTrace, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 		}
+
+		private void cmdApplyTool_Click(object sender, EventArgs e)
+		{
+			SaveNodeChange();
+		}
+
+		private void trackBar1_Scroll(object sender, EventArgs e)
+		{
+			float newSize = trackBar1.Value; // Get the new font size from the TrackBar
+			treeView1.Font = new System.Drawing.Font(treeView1.Font.FontFamily, newSize); // Set the new font size
+		}
+
+		public void LoadPallette(string pFilePath)
+		{
+			try
+			{
+				if (!string.IsNullOrEmpty(pFilePath))
+				{
+					if (File.Exists(pFilePath))
+					{
+						_PaletteFile = pFilePath;
+						Util.WinReg_WriteKey("Settings", "LastPaletteFile", _PaletteFile);
+
+						Pallete _Pallete = Util.DeSerialize_FromJSON<Pallete>(pFilePath);
+						if (_Pallete != null)
+						{
+							cTreeView1.BeginUpdate();
+							cTreeView1.Nodes.Clear();
+							cTreeView1.Margin = new Padding(2);
+							cTreeView1.AutoExpandSelected = true;
+
+							foreach (var _pallete in _Pallete.Colors)
+							{
+								Color color = ColorTranslator.FromHtml(_pallete.BaseColor);
+								Bitmap bmp = new Bitmap(16, 16);
+								using (Graphics g = Graphics.FromImage(bmp)) { g.Clear(color); }
+
+								CTreeNode _Cover = new CTreeNode(_pallete.Name, new Button() { Width = 120, Text = _pallete.Name, Tag = _pallete, Image = bmp, ImageAlign = ContentAlignment.MiddleLeft })
+								{
+									Tag = _pallete
+								};
+								//_Cover.Control.Click += Control_Click;
+
+								SizeF textSize = _Cover.GetControlFontSize(_pallete.Name);
+								if (textSize.Width > 70) _Cover.Control.Width = (int)(textSize.Width + 10);
+
+								cTreeView1.Nodes.Add(_Cover);
+
+								foreach (var _color in _pallete.Colors)
+								{
+									color = ColorTranslator.FromHtml(_color);
+									//bmp = new Bitmap(16, 16);
+									//using (Graphics g = Graphics.FromImage(bmp)) { g.Clear(color); }
+									if (color.A != 255)
+									{
+										Console.WriteLine($"'{_color}' Has Alpha: {color.A}");
+									}
+
+									bmp = Util.DrawColorBox(new Size(16, 16), color, 3);
+
+									CTreeNode _Child = new CTreeNode(_color, new Button() { Width = 120, Text = _color, Tag = color, Image = bmp, ImageAlign = ContentAlignment.MiddleLeft })
+									{
+										Tag = color
+									};
+									_Child.Control.Click += Control_Click;
+									_Cover.Nodes.Add(_Child);
+								}
+							}
+
+							cTreeView1.ExpandAll();
+							cTreeView1.EndUpdate();
+						}
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show(ex.Message + ex.StackTrace, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
+		}
+
+		private void Control_Click(object sender, EventArgs e)
+		{
+			// Apply the selected color from the Palette to the active Color Control
+			if (sender is Button _control)
+			{
+				if (_control.Tag != null && _control.Tag is Color _color)
+				{
+					switch (CurrentType)
+					{
+						case "Single Color:Decimal":
+								Valuecontrol_Color.SetColorFrom(_color);
+							break;
+						case "Single Color:Integer":
+							Valuecontrol_Color.SetColorFrom(_color);
+							break;
+						case "Color Sprite:Decimal":
+							if (selectedColorControl != null)
+							{
+								selectedColorControl.SetColorFrom(_color);
+							}							
+							break;
+						case "Color Sprite:Integer":
+							if (selectedColorControl != null)
+							{
+								selectedColorControl.SetColorFrom(_color);
+							}
+							break;
+
+						default: break;
+					}
+				}
+			}
+		}
+
+		private void cmdPallette_Open_Click_1(object sender, EventArgs e)
+		{
+			try
+			{
+				OpenFileDialog OFDialog = new OpenFileDialog()
+				{
+					Filter = "JSON Files|*.json|All Files|*.*",
+					FilterIndex = 0,
+					DefaultExt = "json",
+					AddExtension = true,
+					CheckPathExists = true,
+					CheckFileExists = true,
+					InitialDirectory = this._PaletteFolder
+				};
+
+				if (OFDialog.ShowDialog() == DialogResult.OK)
+				{
+					//Save the last used folder:
+					_PaletteFolder = System.IO.Path.GetDirectoryName(OFDialog.FileName);
+					Util.WinReg_WriteKey("Settings", "LastPaletteFolder", _PaletteFolder);
+
+					LoadPallette(OFDialog.FileName);
+				}
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show(ex.Message + ex.StackTrace);
+			}
+		}
+		private void cmdPallette_Edit_Click(object sender, EventArgs e)
+		{
+			System.Diagnostics.Process.Start("notepad.exe", _PaletteFile);
+		}
+
+	
 	}
 }

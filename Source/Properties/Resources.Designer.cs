@@ -63,9 +63,9 @@ namespace TDeditor.Properties {
         /// <summary>
         ///   Busca un recurso adaptado de tipo System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap _1352899444_disk {
+        internal static System.Drawing.Bitmap add_minus_square_16 {
             get {
-                object obj = ResourceManager.GetObject("1352899444_disk", resourceCulture);
+                object obj = ResourceManager.GetObject("add-minus-square-16", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -73,9 +73,9 @@ namespace TDeditor.Properties {
         /// <summary>
         ///   Busca un recurso adaptado de tipo System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap _1352899509_save_all {
+        internal static System.Drawing.Bitmap add_plus_square_16 {
             get {
-                object obj = ResourceManager.GetObject("1352899509_save_all", resourceCulture);
+                object obj = ResourceManager.GetObject("add-plus-square-16", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -83,9 +83,69 @@ namespace TDeditor.Properties {
         /// <summary>
         ///   Busca un recurso adaptado de tipo System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap _1352899744_folder_horizontal_open {
+        internal static System.Drawing.Bitmap check_square_16 {
             get {
-                object obj = ResourceManager.GetObject("1352899744_folder-horizontal-open", resourceCulture);
+                object obj = ResourceManager.GetObject("check-square-16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Busca un recurso adaptado de tipo System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap checkmark_16 {
+            get {
+                object obj = ResourceManager.GetObject("checkmark-16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Busca un recurso adaptado de tipo System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap color_palette_16 {
+            get {
+                object obj = ResourceManager.GetObject("color-palette-16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Busca un recurso adaptado de tipo System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap open_folder_16 {
+            get {
+                object obj = ResourceManager.GetObject("open-folder-16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Busca un recurso adaptado de tipo System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap save_black {
+            get {
+                object obj = ResourceManager.GetObject("save_black", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Busca un recurso adaptado de tipo System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap save_file_16 {
+            get {
+                object obj = ResourceManager.GetObject("save-file-16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Busca un recurso adaptado de tipo System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap search_16 {
+            get {
+                object obj = ResourceManager.GetObject("search-16", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

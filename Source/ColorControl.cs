@@ -214,6 +214,11 @@ namespace BlueControls
 			}
 			catch { }
 		}
+		private void txtHtmlValue_Enter(object sender, EventArgs e)
+		{
+			// Raise the UserControl's Enter event
+			OnEnter(e);
+		}
 
 		//The ColorTranslator.ToHtml method does not include the alpha component
 		private string ColorToHtmlWithAlpha(Color color)
@@ -316,5 +321,6 @@ namespace BlueControls
 			}
 		}
 
+		
 	}
 }

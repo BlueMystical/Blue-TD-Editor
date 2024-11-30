@@ -36,6 +36,9 @@
     <ApplicationIcon>ergo-proxy-fullon-fight_Blue_Mystic_2.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ControlTreeView">
+      <HintPath>lib\ControlTreeView.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>lib\Newtonsoft.Json.dll</HintPath>
@@ -86,6 +89,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <None Include="color_pallete.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -110,6 +116,22 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="ergo-proxy-fullon-fight_Blue_Mystic_2.ico" />
+    <None Include="lib\icons\slim-pack\PNG\search-16.png" />
+    <None Include="lib\icons\slim-pack\PNG\color-palette-16.png" />
+    <None Include="lib\icons\slim-pack\PNG\add-plus-square-16.png" />
+    <None Include="lib\icons\slim-pack\PNG\add-minus-square-16.png" />
+    <None Include="lib\icons\slim-pack\PNG\check-square-16.png" />
+    <None Include="lib\icons\slim-pack\PNG\checkmark-16.png" />
+    <None Include="lib\icons\slim-pack\PNG\save_black.png" />
+    <None Include="lib\icons\slim-pack\PNG\save-file-16.png" />
+    <None Include="lib\icons\slim-pack\PNG\open-folder-16.png" />
+    <None Include="lib\icons\save_black.png" />
+    <None Include="lib\icons\open-folder.png" />
+    <None Include="lib\icons\add-plus-square_black.png" />
+    <None Include="lib\icons\add-minus-square.png" />
+    <None Include="lib\icons\open-folder_clear.png" />
+    <None Include="lib\icons\add-plus-square_clear.png" />
+    <None Include="lib\icons\add-minus-square_clear.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

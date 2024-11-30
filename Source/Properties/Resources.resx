@@ -118,13 +118,31 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="1352899509_save_all" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\1352899509_save_all.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="checkmark-16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\lib\icons\slim-pack\PNG\checkmark-16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="1352899744_folder-horizontal-open" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\1352899744_folder-horizontal-open.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="check-square-16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\lib\icons\slim-pack\PNG\check-square-16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="1352899444_disk" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\1352899444_disk.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="save-file-16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\lib\icons\slim-pack\PNG\save-file-16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="add-plus-square-16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\lib\icons\slim-pack\PNG\add-plus-square-16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="add-minus-square-16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\lib\icons\slim-pack\PNG\add-minus-square-16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="open-folder-16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\lib\icons\slim-pack\PNG\open-folder-16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="save_black" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\lib\icons\slim-pack\PNG\save_black.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="search-16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\lib\icons\slim-pack\PNG\search-16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="color-palette-16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\lib\icons\slim-pack\PNG\color-palette-16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

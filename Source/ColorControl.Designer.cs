@@ -109,6 +109,7 @@ namespace BlueControls
 			this.txtHtmlValue.TabIndex = 10;
 			this.txtHtmlValue.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			this.txtHtmlValue.TextChanged += new System.EventHandler(this.txtHtmlValue_TextChanged);
+			this.txtHtmlValue.Enter += new System.EventHandler(this.txtHtmlValue_Enter);
 			// 
 			// lbTime
 			// 

@@ -1,0 +1,83 @@
+{
+  "Name": "Queen's Pallete'",
+  "Colors": [
+    {
+      "Name": "Yellows",
+      "BaseColor": "#FFFF00",
+      "Colors": [
+        "#FFFF00",
+        "#FFF207",
+        "#FEFA1B",
+        "#E2FF31",
+        "#F1FF5C"
+      ]
+    },
+    {
+      "Name": "Reds",
+      "BaseColor": "#FF0000",
+      "Colors": [
+        "#FF0000",
+        "#FF3838",
+        "#C20000",
+        "#A80000",
+        "#570000"
+      ]
+    },
+    {
+      "Name": "Blues",
+      "BaseColor": "#000043",
+      "Colors": [
+        "#000043",
+        "#000085",
+        "#0000D7",
+        "#2157EB",
+        "#56C2FF"
+      ]
+    },
+    {
+      "Name": "Aquas",
+      "BaseColor": "#004F52",
+      "Colors": [
+        "#004F52",
+        "#00767A",
+        "#00ADB3",
+        "#00E3EB",
+        "#38F8FF"
+      ]
+    },
+    {
+      "Name": "Greens",
+      "BaseColor": "#004D0F",
+      "Colors": [
+        "#004D0F",
+        "#007517",
+        "#00991F",
+        "#00D12A",
+        "#42FF68"
+      ]
+    },
+    {
+      "Name": "Pinks",
+      "BaseColor": "#FF00FF",
+      "Colors": [
+        "#FF00FF",
+        "#FF00C1",
+        "#DC0086",
+        "#A40089",
+        "#8F005A"
+      ]
+    },
+    {
+      "Name": "Purples",
+      "BaseColor": "#380066",
+      "Colors": [
+        "#380066",
+        "#57009E",
+        "#7B00E0",
+        "#752E94",
+        "#C87B00E0",
+        "#370092"
+      ]
+    }
+  ]
+}

@@ -38,10 +38,14 @@ G:\@Proyectos\VS2019\Blue-TD-Editor\bin\Debug\MysticalEditor\Version.json
 G:\@Proyectos\VS2019\Blue-TD-Editor\bin\Debug\MysticalEditor\BlueUpdater.exe
 G:\@Proyectos\VS2019\Blue-TD-Editor\bin\Debug\MysticalEditor\BlueUpdater.pdb
 G:\@Proyectos\VS2019\Blue-TD-Editor\bin\Debug\MysticalEditor\BlueUpdater.exe.config
+G:\@Proyectos\VS2019\Blue-TD-Editor\Source\bin\Debug\MysticalEditor\color_pallete.json
 G:\@Proyectos\VS2019\Blue-TD-Editor\Source\bin\Debug\MysticalEditor\MysticalEditor.exe.config
 G:\@Proyectos\VS2019\Blue-TD-Editor\Source\bin\Debug\MysticalEditor\MysticalEditor.exe
 G:\@Proyectos\VS2019\Blue-TD-Editor\Source\bin\Debug\MysticalEditor\MysticalEditor.pdb
+G:\@Proyectos\VS2019\Blue-TD-Editor\Source\bin\Debug\MysticalEditor\ControlTreeView.dll
 G:\@Proyectos\VS2019\Blue-TD-Editor\Source\bin\Debug\MysticalEditor\Newtonsoft.Json.dll
+G:\@Proyectos\VS2019\Blue-TD-Editor\Source\bin\Debug\MysticalEditor\ControlTreeView.pdb
+G:\@Proyectos\VS2019\Blue-TD-Editor\Source\bin\Debug\MysticalEditor\ControlTreeView.xml
 G:\@Proyectos\VS2019\Blue-TD-Editor\Source\bin\Debug\MysticalEditor\Newtonsoft.Json.pdb
 G:\@Proyectos\VS2019\Blue-TD-Editor\Source\bin\Debug\MysticalEditor\Newtonsoft.Json.xml
 G:\@Proyectos\VS2019\Blue-TD-Editor\Source\obj\Debug\TDeditor.csproj.AssemblyReference.cache

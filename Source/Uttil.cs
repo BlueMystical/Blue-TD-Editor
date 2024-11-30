@@ -26,7 +26,7 @@ namespace TDeditor
 		/// <param name="Sistema">Nombre del Sistema que guarda las Claves, ejem: RRHH, Contaduria, CutcsaPagos, etc.</param>
 		/// <param name="KeyName">Nombre de la Clave a Leer</param>
 		/// <returns>Devuelve NULL si la clave no existe</returns>
-		public static object WinReg_ReadKey(string Sistema, string KeyName)
+		public static object WinReg_ReadKey(string Sistema, string KeyName, object DefaultVal = null)
 		{
 			Microsoft.Win32.RegistryKey rk = Microsoft.Win32.Registry.CurrentUser;
 			Microsoft.Win32.RegistryKey sk1 = rk.OpenSubKey(string.Format(@"Software\{0}\{1}", AppName, Sistema));
@@ -38,7 +38,7 @@ namespace TDeditor
 			}
 			else
 			{
-				try { return sk1.GetValue(KeyName); }
+				try { return sk1.GetValue(KeyName, DefaultVal); }
 				catch { return null; }
 			}
 		}
@@ -419,6 +419,59 @@ namespace TDeditor
 			}
 			catch { }
 			return _ret;
+		}
+
+		/// <summary>Crea una instancia de un Objeto leyendo sus datos desde un archivo JSON.
+		/// <para>Object type must have a parameterless constructor.</para></summary>
+		/// <typeparam name="T">The type of object to read from the file.</typeparam>
+		/// <param name="filePath">The file path to read the object instance from.</param>
+		/// <returns>Returns a new instance of the object read from the Json file.</returns>
+		public static T DeSerialize_FromJSON<T>(string filePath) where T : new()
+		{
+			TextReader reader = null;
+			try
+			{
+				reader = new StreamReader(filePath);
+				var fileContents = reader.ReadToEnd();
+				return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(fileContents);
+			}
+			finally
+			{
+				if (reader != null)
+					reader.Close();
+			}
+		}
+
+		/// <summary>Draws a Color with a transparency grid.</summary>
+		/// <param name="imgSize">Size of the return image</param>
+		/// <param name="colorValue">Color to apply</param>
+		/// <param name="squareSize">The Size of individual squares</param>
+		public static System.Drawing.Bitmap DrawColorBox(System.Drawing.Size imgSize, System.Drawing.Color colorValue, int squareSize = 6)
+		{
+			// Calculing the number of Rows and Columns, 1 extra to fully fit the grid
+			int rows = (imgSize.Height / squareSize) + 1;
+			int cols = (imgSize.Width / squareSize) + 1;
+
+			System.Drawing.Bitmap bitmap = new System.Drawing.Bitmap(imgSize.Width, imgSize.Height);
+			using (System.Drawing.Graphics g = System.Drawing.Graphics.FromImage(bitmap))
+			{
+				// Draw the grid layer
+				for (int row = 0; row < rows; row++)
+				{
+					for (int col = 0; col < cols; col++)
+					{
+						System.Drawing.Rectangle rect = new System.Drawing.Rectangle(col * squareSize, row * squareSize, squareSize, squareSize);
+						g.FillRectangle((row + col) % 2 == 0 ? System.Drawing.Brushes.Gray : System.Drawing.Brushes.White, rect);
+					}
+				}
+
+				// Draw the ARGB color layer
+				using (System.Drawing.SolidBrush brush = new System.Drawing.SolidBrush(colorValue))
+				{
+					g.FillRectangle(brush, new System.Drawing.Rectangle(0, 0, imgSize.Width, imgSize.Height));
+				}
+			}
+			return bitmap;
 		}
 
 	}
